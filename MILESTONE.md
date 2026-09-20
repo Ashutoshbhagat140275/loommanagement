@@ -42,15 +42,29 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 
 ## Phase 2 — Looms and production
 
-- [ ] Looms: add, edit, status, place (factory / weaver's home)
-- [ ] Saree types and saree jobs (wage or rate per inch, length, default 216)
-- [ ] One or two workers per saree job, half-half split
-- [ ] Weekly inch entry by the worker; "inches woven this week"
-- [ ] Warning if total would exceed saree length
-- [ ] `trusted` flag: auto-approve, otherwise owner approval queue
-- [ ] Loom list with progress bars
-- [ ] "Saree finished" and "Shift worker" (inches ÷ length × wage)
+API:
+
+- [x] Looms: add, edit, status, place; number unique per factory
+- [x] Saree jobs: one or two weavers, wage or rate per inch, length (216 default)
+- [x] Wage and rate are copied onto the job, so editing a template later cannot
+      rewrite what a weaver already earned
+- [x] Weekly inch entry, filed against the Monday of its week
+- [x] One entry per saree per week, so two weavers on one loom cannot file the
+      same inches twice
+- [x] Refuses more inches than the saree has left, unless confirmed
+- [x] `trusted` flag: auto-approve, otherwise the owner's queue (where the
+      number can be corrected before approving)
+- [x] Progress counts approved entries only
+- [x] "Saree finished" and "Shift worker" (inches ÷ length × wage)
+- [ ] Saree types (model exists, no routes yet — a job works without one)
 - [ ] Weekly and monthly reports
+
+Web:
+
+- [ ] Loom list with progress bars
+- [ ] Start saree, finish saree, shift weaver
+- [ ] Weekly inch entry on the weaver's phone
+- [ ] Owner approval queue
 
 ## Phase 3 — Offline
 

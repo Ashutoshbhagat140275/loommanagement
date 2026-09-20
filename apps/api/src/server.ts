@@ -7,7 +7,10 @@ import { prisma } from "./db/client.js";
 import { authPlugin } from "./auth/plugin.js";
 import { registerErrorHandler } from "./http/errors.js";
 import { factoryRoutes } from "./routes/factories.js";
+import { loomRoutes } from "./routes/looms.js";
 import { meRoutes } from "./routes/me.js";
+import { productionEntryRoutes } from "./routes/productionEntries.js";
+import { sareeJobRoutes } from "./routes/sareeJobs.js";
 import { workerRoutes } from "./routes/workers.js";
 
 export async function buildServer() {
@@ -39,6 +42,9 @@ export async function buildServer() {
   await app.register(factoryRoutes);
   await app.register(meRoutes);
   await app.register(workerRoutes);
+  await app.register(loomRoutes);
+  await app.register(sareeJobRoutes);
+  await app.register(productionEntryRoutes);
 
   app.get("/health", async () => {
     await prisma.$queryRaw`SELECT 1`;

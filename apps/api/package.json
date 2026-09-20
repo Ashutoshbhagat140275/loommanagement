@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "tsx scripts/setup-test-db.ts && node --import tsx --env-file=../../.env.test --test \"src/**/*.test.ts\"",
+    "test": "tsx scripts/setup-test-db.ts && node --import tsx --env-file=../../.env.test --test-concurrency=1 --test \"src/**/*.test.ts\"",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

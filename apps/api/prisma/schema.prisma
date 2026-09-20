@@ -28,6 +28,27 @@ enum WageType {
   PER_INCH
 }
 
+enum LoomStatus {
+  RUNNING
+  STOPPED
+  REPAIR
+}
+
+enum LoomPlace {
+  IN_FACTORY
+  AT_WEAVER_HOME
+}
+
+enum SareeJobStatus {
+  RUNNING
+  FINISHED
+}
+
+enum ProductionEntryStatus {
+  APPROVED
+  AWAITING_OWNER
+}
+
 /// A tenant. Every row that belongs to a factory carries factoryId, and the
 /// scoped Prisma client in src/db/tenant.ts refuses to query without it.
 model Factory {
@@ -37,8 +58,11 @@ model Factory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users   User[]
-  workers Worker[]
+  users      User[]
+  workers    Worker[]
+  looms      Loom[]
+  sareeTypes SareeType[]
+  sareeJobs  SareeJob[]
 }
 
 model User {
@@ -145,6 +169,153 @@ model Worker {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  jobs SareeJobWorker[]
+
   @@unique([factoryId, phone])
   @@index([factoryId])
+}
+
+model Loom {
+  id String @id @default(cuid())
+
+  factoryId String
+  factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+
+  /// What the owner calls it, for example "4" or "A-12".
+  number String
+  status LoomStatus @default(RUNNING)
+  place  LoomPlace  @default(IN_FACTORY)
+  note   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sareeJobs SareeJob[]
+
+  @@unique([factoryId, number])
+  @@index([factoryId])
+}
+
+/// A kind of saree the factory weaves, with the usual length and rate. Only a
+/// template: the real numbers are copied onto each SareeJob when it starts.
+model SareeType {
+  id String @id @default(cuid())
+
+  factoryId String
+  factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+
+  name         String
+  lengthInches Int @default(216)
+
+  /// Whole wage for weaving one, in paise. Used when wageType is PER_SAREE.
+  defaultWagePaise Int?
+  /// Rate per inch in paise. Used when wageType is PER_INCH.
+  defaultRatePerInchPaise Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sareeJobs SareeJob[]
+
+  @@unique([factoryId, name])
+  @@index([factoryId])
+}
+
+/// One real saree being woven on one loom. The wage numbers are copied here at
+/// the start, so changing a SareeType later never rewrites history.
+model SareeJob {
+  id String @id @default(cuid())
+
+  factoryId String
+  factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+
+  loomId String
+  loom   Loom   @relation(fields: [loomId], references: [id], onDelete: Restrict)
+
+  sareeTypeId String?
+  sareeType   SareeType? @relation(fields: [sareeTypeId], references: [id], onDelete: SetNull)
+
+  label        String?
+  lengthInches Int
+
+  wageType WageType
+
+  /// Exactly one of these is set, matching wageType.
+  wagePaise        Int?
+  ratePerInchPaise Int?
+
+  status     SareeJobStatus @default(RUNNING)
+  startedAt  DateTime       @default(now())
+  finishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workers SareeJobWorker[]
+  entries ProductionEntry[]
+
+  @@index([factoryId, status])
+  @@index([loomId])
+}
+
+/// Which weavers are on a saree. Up to two at a time, and the work money is
+/// always split half and half between whoever is active.
+model SareeJobWorker {
+  id String @id @default(cuid())
+
+  factoryId String
+
+  sareeJobId String
+  sareeJob   SareeJob @relation(fields: [sareeJobId], references: [id], onDelete: Cascade)
+
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Restrict)
+
+  active   Boolean   @default(true)
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
+
+  /// How many inches the saree had reached when this weaver was taken off it.
+  /// Phase 5 needs this to work out their share: inches / length x wage.
+  leftAtInches Int?
+
+  @@unique([sareeJobId, workerId])
+  @@index([factoryId])
+  @@index([workerId])
+}
+
+/// How much was woven on one saree in one week.
+///
+/// One row per saree per week, not per weaver. Two weavers share a loom and
+/// the loom has a single output, so letting each of them file the same 20
+/// inches would count the work twice.
+model ProductionEntry {
+  id String @id @default(cuid())
+
+  factoryId String
+
+  sareeJobId String
+  sareeJob   SareeJob @relation(fields: [sareeJobId], references: [id], onDelete: Cascade)
+
+  /// Monday of the week being reported, stored as a plain date.
+  weekStart DateTime @db.Date
+
+  /// Inches woven during this week, not the saree's running total.
+  inches Int
+
+  /// The rate in force on the day it was entered. Changing the job's rate
+  /// later must not rewrite what someone already earned.
+  ratePerInchPaise Int?
+
+  status ProductionEntryStatus
+
+  enteredByUserId String
+  approvedAt      DateTime?
+  approvedByUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sareeJobId, weekStart])
+  @@index([factoryId, status])
 }

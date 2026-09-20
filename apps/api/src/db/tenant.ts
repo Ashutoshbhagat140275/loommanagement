@@ -12,7 +12,11 @@ import { prisma } from "./client.js";
  */
 const TENANT_MODELS = new Set<string>([
   "Worker",
-  // phase 2: Loom, SareeType, SareeJob, ProductionEntry
+  "Loom",
+  "SareeType",
+  "SareeJob",
+  "SareeJobWorker",
+  "ProductionEntry",
   // phase 4: Material, StockMovement, FinishedSaree
   // phase 5: LedgerLine
 ]);
