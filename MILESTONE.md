@@ -2,8 +2,10 @@
 
 Progress tracker. The full design lives in [PLAN.md](PLAN.md).
 
-**Status:** Phase 0 done · Phase 1 in progress
+**Status:** Phase 0 done · Phase 1 API done, web screens left
 **Last updated:** 2026-09-20
+
+Run `pnpm db:up` once, then `pnpm dev`. Tests: `pnpm test`.
 
 Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 
@@ -26,11 +28,14 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [x] Money helpers (paise integers) in `packages/shared`
 - [x] Language switch EN / HI / MR, remembered in localStorage
 - [x] React shell with Tailwind, talking to the API
-- [ ] Better Auth: owner sign-up creates a factory; email + password
-- [ ] Worker login: phone number + PIN
-- [ ] Roles enforced on routes (enum exists, no guards yet)
+- [x] Better Auth: owner sign-up creates a factory; email + password
+- [x] Worker login: phone number + PIN
+- [x] Roles enforced on routes via `requireRole()`
+- [x] Tenant scoping test: factory A cannot read or write factory B's rows
+- [x] Public sign-up disabled, so a user without a factory cannot exist
+- [ ] Web: sign-up, owner sign-in and worker sign-in screens
 - [ ] shadcn/ui set up, bottom navigation
-- [ ] Tenant scoping test: factory A cannot read factory B's rows
+- [ ] Route protection on the web side
 
 ## Phase 2 — Looms and production
 

@@ -4,33 +4,63 @@ import cookie from "@fastify/cookie";
 
 import { env, isProduction } from "./env.js";
 import { prisma } from "./db/client.js";
+import { authPlugin } from "./auth/plugin.js";
+import { registerErrorHandler } from "./http/errors.js";
+import { factoryRoutes } from "./routes/factories.js";
+import { meRoutes } from "./routes/me.js";
+import { workerRoutes } from "./routes/workers.js";
 
-const app = Fastify({
-  logger: isProduction
-    ? true
-    : { transport: { target: "pino-pretty", options: { translateTime: "HH:MM:ss" } } },
-});
+export async function buildServer() {
+  const app = Fastify({
+    // pino-pretty runs in a worker thread, which keeps the process alive after
+    // tests finish, so tests get a plain silent logger.
+    logger:
+      env.NODE_ENV === "test"
+        ? false
+        : isProduction
+          ? true
+          : {
+              transport: {
+                target: "pino-pretty",
+                options: { translateTime: "HH:MM:ss" },
+              },
+            },
+  });
 
-await app.register(cors, {
-  origin: [env.WEB_ORIGIN],
-  credentials: true,
-});
+  await app.register(cors, {
+    origin: [env.WEB_ORIGIN],
+    credentials: true,
+  });
+  await app.register(cookie);
 
-await app.register(cookie);
+  registerErrorHandler(app);
 
-app.get("/health", async () => {
-  await prisma.$queryRaw`SELECT 1`;
-  return { ok: true, at: new Date().toISOString() };
-});
+  await app.register(authPlugin);
+  await app.register(factoryRoutes);
+  await app.register(meRoutes);
+  await app.register(workerRoutes);
 
-const shutdown = async (signal: string) => {
-  app.log.info(`${signal} received, shutting down`);
-  await app.close();
-  await prisma.$disconnect();
-  process.exit(0);
-};
+  app.get("/health", async () => {
+    await prisma.$queryRaw`SELECT 1`;
+    return { ok: true, at: new Date().toISOString() };
+  });
 
-process.on("SIGINT", () => void shutdown("SIGINT"));
-process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  return app;
+}
 
-await app.listen({ port: env.PORT, host: "0.0.0.0" });
+/** Only start listening when run directly, so tests can import buildServer. */
+if (env.NODE_ENV !== "test") {
+  const app = await buildServer();
+
+  const shutdown = async (signal: string) => {
+    app.log.info(`${signal} received, shutting down`);
+    await app.close();
+    await prisma.$disconnect();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", () => void shutdown("SIGINT"));
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+
+  await app.listen({ port: env.PORT, host: "0.0.0.0" });
+}
