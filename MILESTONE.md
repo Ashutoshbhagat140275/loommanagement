@@ -2,7 +2,7 @@
 
 Progress tracker. The full design lives in [PLAN.md](PLAN.md).
 
-**Status:** Phase 0 done · Phase 1 API done, web screens left
+**Status:** Phase 0 and Phase 1 done · Phase 2 next
 **Last updated:** 2026-09-20
 
 Run `pnpm db:up` once, then `pnpm dev`. Tests: `pnpm test`.
@@ -33,9 +33,12 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [x] Roles enforced on routes via `requireRole()`
 - [x] Tenant scoping test: factory A cannot read or write factory B's rows
 - [x] Public sign-up disabled, so a user without a factory cannot exist
-- [ ] Web: sign-up, owner sign-in and worker sign-in screens
-- [ ] shadcn/ui set up, bottom navigation
-- [ ] Route protection on the web side
+- [x] Web: factory sign-up, owner sign-in, worker sign-in (phone + PIN)
+- [x] Route protection and role-aware redirects on the web side
+- [x] App shell with bottom navigation; workers list and add-worker form
+- [x] shadcn/ui foundation: `components.json`, `@/` alias, `cn()`, Button and Field
+      written in shadcn style. No CLI components pulled in yet — nothing needed
+      Radix. `pnpm dlx shadcn@latest add <component>` will work when one does.
 
 ## Phase 2 — Looms and production
 

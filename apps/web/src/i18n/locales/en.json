@@ -6,13 +6,91 @@
   "language": {
     "label": "Language"
   },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "optional": "optional"
+  },
   "health": {
     "checking": "Connecting to server…",
     "connected": "Server connected",
     "failed": "Server not reachable"
   },
-  "phase": {
-    "title": "Phase 0 complete",
-    "body": "Workspace, database and server are running. Login and factory sign-up come next."
+  "nav": {
+    "home": "Home",
+    "workers": "Workers"
+  },
+  "auth": {
+    "signOut": "Sign out",
+    "signIn": {
+      "title": "Sign in",
+      "subtitle": "For factory owners and supervisors",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "asWorker": "I am a weaver",
+      "noAccount": "New here?",
+      "createFactory": "Register your factory"
+    },
+    "worker": {
+      "title": "Weaver sign in",
+      "subtitle": "Use the phone number and PIN your owner gave you",
+      "phone": "Phone number",
+      "pin": "PIN",
+      "submit": "Sign in",
+      "asOwner": "I am an owner"
+    },
+    "signUp": {
+      "title": "Register your factory",
+      "subtitle": "This creates your factory and your owner account",
+      "factoryName": "Factory name",
+      "ownerName": "Your name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters",
+      "submit": "Create factory",
+      "haveAccount": "Already registered?",
+      "signIn": "Sign in"
+    },
+    "errors": {
+      "invalidCredentials": "Those details did not match. Please check and try again.",
+      "emailTaken": "An account with this email already exists.",
+      "offline": "Could not reach the server. Check your internet."
+    }
+  },
+  "dashboard": {
+    "title": "Home",
+    "greeting": "Hello, {{name}}",
+    "factory": "Factory",
+    "yourRole": "Your role"
+  },
+  "role": {
+    "OWNER": "Owner",
+    "SUPERVISOR": "Supervisor",
+    "WORKER": "Weaver",
+    "SUPER_ADMIN": "Admin"
+  },
+  "wageType": {
+    "PER_SAREE": "Per saree",
+    "PER_INCH": "Per inch"
+  },
+  "workers": {
+    "title": "Workers",
+    "empty": "No workers yet. Add your first one.",
+    "add": "Add worker",
+    "name": "Name",
+    "phone": "Phone number",
+    "wageType": "How they are paid",
+    "trusted": "Trusted",
+    "trustedHint": "A trusted worker's inch entries are saved without your approval",
+    "pin": "Login PIN",
+    "pinHint": "4 to 6 digits. Needs a phone number. Leave empty for no login.",
+    "hasLogin": "Can sign in",
+    "noLogin": "No login",
+    "inactive": "Inactive",
+    "created": "Worker added"
   }
 }

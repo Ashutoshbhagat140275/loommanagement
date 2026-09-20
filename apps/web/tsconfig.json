@@ -4,7 +4,8 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["vite/client", "node"],
     "jsx": "react-jsx",
-    "noEmit": true
+    "noEmit": true,
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src", "vite.config.ts"]
 }
