@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "Loom Management",
+    "tagline": "Production, stock and wages for saree weaving factories"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "health": {
+    "checking": "Connecting to server…",
+    "connected": "Server connected",
+    "failed": "Server not reachable"
+  },
+  "phase": {
+    "title": "Phase 0 complete",
+    "body": "Workspace, database and server are running. Login and factory sign-up come next."
+  }
+}

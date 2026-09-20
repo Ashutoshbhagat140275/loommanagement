@@ -1,0 +1,150 @@
+// Phase 1 schema: factories, users, auth, workers.
+// Looms and production (phase 2), stock (phase 4) and the ledger (phase 5)
+// are added in their own phases so each migration stays reviewable.
+//
+// Money is never stored here as a decimal. Every amount is an integer number
+// of paise in an Int column. See packages/shared/src/money.ts.
+
+// Prisma 7 takes the connection URL from prisma.config.ts (for the CLI) and
+// from the driver adapter in src/db/client.ts (at runtime), not from here.
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+enum Role {
+  OWNER
+  SUPERVISOR
+  WORKER
+  SUPER_ADMIN
+}
+
+enum WageType {
+  PER_SAREE
+  PER_INCH
+}
+
+/// A tenant. Every row that belongs to a factory carries factoryId, and the
+/// scoped Prisma client in src/db/tenant.ts refuses to query without it.
+model Factory {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users   User[]
+  workers Worker[]
+}
+
+model User {
+  id            String  @id @default(cuid())
+  name          String
+  email         String? @unique
+  emailVerified Boolean @default(false)
+  image         String?
+
+  /// Workers sign in with their phone number as the username and a PIN.
+  username        String? @unique
+  displayUsername String?
+
+  role Role @default(WORKER)
+
+  /// Null only for SUPER_ADMIN, who sits above every factory.
+  factoryId String?
+  factory   Factory? @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+  worker   Worker?
+
+  @@index([factoryId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id         String @id @default(cuid())
+  accountId  String
+  providerId String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Hashed password for owners, hashed PIN for workers. Never plain text.
+  password String?
+
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+/// A weaver. Kept separate from User because the owner adds workers long
+/// before (or without) them ever getting a login.
+model Worker {
+  id String @id @default(cuid())
+
+  factoryId String
+  factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+
+  name     String
+  phone    String?
+  photoUrl String?
+
+  wageType WageType @default(PER_SAREE)
+
+  /// Trusted workers' inch entries are accepted as they are. Everyone else's
+  /// entries wait for the owner to check the loom and approve.
+  trusted Boolean @default(false)
+  active  Boolean @default(true)
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([factoryId, phone])
+  @@index([factoryId])
+}
