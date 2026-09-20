@@ -14,6 +14,7 @@ import {
 
 import { ProgressBar } from "@/components/ProgressBar.js";
 import { Button } from "@/components/ui/button.js";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog.js";
 import { Field, FormError, Input } from "@/components/ui/field.js";
 import { apiFetch } from "@/lib/api.js";
 import {
@@ -252,14 +253,23 @@ function LoomCard({ loom, job }: { loom: Loom; job: SareeJob | undefined }) {
   const { t } = useTranslation();
   const finish = useFinishSareeJob();
   const [starting, setStarting] = useState(false);
+  const [confirmingFinish, setConfirmingFinish] = useState(false);
+
+  const remaining = job ? job.lengthInches - job.inchesDone : 0;
+
+  const finishSaree = () => {
+    if (!job) return;
+    // Finishing a saree that still has inches left is nearly always a misclick,
+    // so ask. A saree that has reached its length just ends.
+    if (remaining > 0) setConfirmingFinish(true);
+    else finish.mutate(job.id);
+  };
 
   return (
     <li className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="font-medium">
-            {t("looms.number")} {loom.number}
-          </p>
+          <p className="font-medium">{t("looms.label", { number: loom.number })}</p>
           <p className="text-sm text-slate-500">
             {t(`loomPlace.${loom.place}`)} · {t(`loomStatus.${loom.status}`)}
           </p>
@@ -302,11 +312,30 @@ function LoomCard({ loom, job }: { loom: Loom; job: SareeJob | undefined }) {
           <Button
             size="sm"
             variant="outline"
-            onClick={() => finish.mutate(job.id)}
+            onClick={finishSaree}
             disabled={finish.isPending}
           >
             {t("saree.finish")}
           </Button>
+
+          <ConfirmDialog
+            open={confirmingFinish}
+            title={t("saree.finishConfirmTitle")}
+            confirmLabel={t("saree.finishConfirm")}
+            cancelLabel={t("common.cancel")}
+            tone="danger"
+            busy={finish.isPending}
+            onCancel={() => setConfirmingFinish(false)}
+            onConfirm={() =>
+              finish.mutate(job.id, { onSuccess: () => setConfirmingFinish(false) })
+            }
+          >
+            {t("saree.finishConfirmBody", {
+              done: job.inchesDone,
+              total: job.lengthInches,
+              remaining,
+            })}
+          </ConfirmDialog>
         </div>
       ) : starting ? (
         <StartSareeForm loom={loom} onDone={() => setStarting(false)} />

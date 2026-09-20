@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
 
+import { LanguageSelect } from "@/components/LanguageSelect.js";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/lib/cn.js";
 import { useSession, useSignOut } from "@/lib/session.js";
@@ -67,14 +68,17 @@ export function AppLayout() {
               {user ? t(`role.${user.role}`) : null}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => signOut.mutate()}
-            disabled={signOut.isPending}
-          >
-            {t("auth.signOut")}
-          </Button>
+          <div className="flex shrink-0 items-center gap-2">
+            <LanguageSelect />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => signOut.mutate()}
+              disabled={signOut.isPending}
+            >
+              {t("auth.signOut")}
+            </Button>
+          </div>
         </div>
       </header>
 

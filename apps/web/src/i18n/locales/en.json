@@ -111,7 +111,8 @@
     "place": "Where is it",
     "empty": "No looms yet. Add your first one.",
     "idle": "No saree on this loom",
-    "startSaree": "Start saree"
+    "startSaree": "Start saree",
+    "label": "Loom {{number}}"
   },
   "saree": {
     "start": "Start a saree",
@@ -124,7 +125,10 @@
     "weaversHint": "Pick one or two. With two, the money splits half and half.",
     "progress": "{{done}} of {{total}} inches",
     "finish": "Saree finished",
-    "finishedOn": "Finished"
+    "finishedOn": "Finished",
+    "finishConfirmTitle": "End this saree?",
+    "finishConfirmBody": "Only {{done}} of {{total}} inches are woven, so {{remaining}} inches are still left. Are you sure you want to end this saree?",
+    "finishConfirm": "Yes, end it"
   },
   "entry": {
     "title": "This week's weaving",

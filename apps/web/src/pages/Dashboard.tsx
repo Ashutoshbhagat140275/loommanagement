@@ -32,11 +32,11 @@ function WeaverHome() {
         <section key={job.id} className="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <div>
             <p className="font-medium">
-              {job.label ?? `${t("looms.number")} ${job.loom.number}`}
+              {job.label ?? t("looms.label", { number: job.loom.number })}
             </p>
             {job.label ? (
               <p className="text-sm text-slate-500">
-                {t("looms.number")} {job.loom.number}
+                {t("looms.label", { number: job.loom.number })}
               </p>
             ) : null}
           </div>
