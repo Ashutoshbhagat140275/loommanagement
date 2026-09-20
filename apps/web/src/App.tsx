@@ -8,6 +8,8 @@ import { useSession } from "@/lib/session.js";
 import { Approvals } from "@/pages/Approvals.js";
 import { Dashboard } from "@/pages/Dashboard.js";
 import { Looms } from "@/pages/Looms.js";
+import { Reports } from "@/pages/Reports.js";
+import { SareeTypes } from "@/pages/SareeTypes.js";
 import { SignIn } from "@/pages/SignIn.js";
 import { SignUp } from "@/pages/SignUp.js";
 import { Workers } from "@/pages/Workers.js";
@@ -92,10 +94,26 @@ export function App() {
             }
           />
           <Route
+            path="/saree-types"
+            element={
+              <RequireAuth roles={["OWNER", "SUPERVISOR"]}>
+                <SareeTypes />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/workers"
             element={
               <RequireAuth roles={["OWNER", "SUPERVISOR"]}>
                 <Workers />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <RequireAuth roles={["OWNER", "SUPERVISOR"]}>
+                <Reports />
               </RequireAuth>
             }
           />

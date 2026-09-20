@@ -16,6 +16,19 @@ export function Input({ className, ...props }: ComponentProps<"input">) {
   );
 }
 
+export function Select({ className, ...props }: ComponentProps<"select">) {
+  return (
+    <select
+      className={cn(
+        "h-12 w-full rounded-xl bg-white px-4 text-base text-slate-900 ring-1 ring-slate-300 transition",
+        "focus:ring-2 focus:ring-slate-900 focus:outline-none",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 type FieldProps = {
   label: string;
   error?: string | undefined;

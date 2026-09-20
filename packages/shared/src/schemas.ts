@@ -98,6 +98,19 @@ export const createSareeTypeSchema = z.object({
   defaultRatePerInchPaise: paiseSchema.optional(),
 });
 
+export const updateSareeTypeSchema = z.object({
+  name: nameSchema.optional(),
+  lengthInches: z.int().min(1).max(10_000).optional(),
+  defaultWagePaise: paiseSchema.nullable().optional(),
+  defaultRatePerInchPaise: paiseSchema.nullable().optional(),
+});
+
+/** Which slice of production a report covers. */
+export const productionReportQuerySchema = z.object({
+  from: z.iso.date(),
+  to: z.iso.date(),
+});
+
 /**
  * Starting a saree copies its wage onto the job, so editing the saree type
  * later cannot change what a weaver already earned.

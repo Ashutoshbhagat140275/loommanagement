@@ -18,6 +18,7 @@ function BottomNav() {
       ? [
           { to: "/looms", label: t("nav.looms"), end: false },
           { to: "/workers", label: t("nav.workers"), end: false },
+          { to: "/reports", label: t("nav.reports"), end: false },
         ]
       : []),
     ...(user?.role === "OWNER"

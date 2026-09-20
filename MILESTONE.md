@@ -2,8 +2,8 @@
 
 Progress tracker. The full design lives in [PLAN.md](PLAN.md).
 
-**Status:** Phases 0–3 done, apart from saree types, reports, the shift-weaver
-screen, and verifying the service worker on a real device
+**Status:** Phases 0–3 complete, except verifying the service worker on a real
+device. Phase 4 (stock) and Phase 5 (passbook) are next.
 **Last updated:** 2026-09-20
 
 Run `pnpm db:up` once, then `pnpm dev`. Tests: `pnpm test`.
@@ -57,8 +57,10 @@ API:
       number can be corrected before approving)
 - [x] Progress counts approved entries only
 - [x] "Saree finished" and "Shift worker" (inches ÷ length × wage)
-- [ ] Saree types (model exists, no routes yet — a job works without one)
-- [ ] Weekly and monthly reports
+- [x] Saree types as templates; picking one fills the start-saree form and the
+      numbers are then the saree's own
+- [x] Production report over a date range: totals by week, by loom and by
+      weaver, approved entries only, inches split half-half on a shared loom
 
 Web:
 
@@ -66,7 +68,9 @@ Web:
 - [x] Add loom, start saree, finish saree
 - [x] Weekly inch entry on the weaver's phone, with the overflow confirmation
 - [x] Owner approval queue: approve, correct the number, or reject
-- [ ] Shift weaver (API done, no screen yet)
+- [x] Shift weaver, with the share worked out and shown before the owner agrees
+- [x] Saree types page, reachable from Looms
+- [x] Reports page with a bar per row
 
 ## Phase 3 — Offline (PWA install not yet verified on a device)
 

@@ -10,7 +10,9 @@ import { factoryRoutes } from "./routes/factories.js";
 import { loomRoutes } from "./routes/looms.js";
 import { meRoutes } from "./routes/me.js";
 import { productionEntryRoutes } from "./routes/productionEntries.js";
+import { reportRoutes } from "./routes/reports.js";
 import { sareeJobRoutes } from "./routes/sareeJobs.js";
+import { sareeTypeRoutes } from "./routes/sareeTypes.js";
 import { workerRoutes } from "./routes/workers.js";
 
 export async function buildServer() {
@@ -49,6 +51,8 @@ export async function buildServer() {
   await app.register(loomRoutes);
   await app.register(sareeJobRoutes);
   await app.register(productionEntryRoutes);
+  await app.register(sareeTypeRoutes);
+  await app.register(reportRoutes);
 
   app.get("/health", async () => {
     await prisma.$queryRaw`SELECT 1`;

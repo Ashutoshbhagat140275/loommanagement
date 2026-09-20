@@ -23,7 +23,8 @@
     "home": "Home",
     "looms": "Looms",
     "workers": "Workers",
-    "approvals": "Approve"
+    "approvals": "Approve",
+    "reports": "Reports"
   },
   "auth": {
     "signOut": "Sign out",
@@ -144,6 +145,42 @@
     "confirm": "Yes, record it",
     "noSaree": "You are not on a saree right now. Ask your owner.",
     "history": "Earlier weeks"
+  },
+  "sareeTypes": {
+    "title": "Saree types",
+    "manage": "Saree types",
+    "add": "Add saree type",
+    "name": "Name",
+    "length": "Length in inches",
+    "wage": "Usual wage for the whole saree (₹)",
+    "ratePerInch": "Usual rate per inch (₹)",
+    "amountHint": "Fill in whichever one this saree is normally paid by. Both can be left empty.",
+    "empty": "No saree types yet. They are only a shortcut when starting a saree.",
+    "pick": "Saree type",
+    "pickNone": "None",
+    "copied": "Filled in from the saree type. Change anything you like — the saree keeps these numbers, not the template's."
+  },
+  "shift": {
+    "button": "Shift weaver",
+    "title": "Shift a weaver off this saree",
+    "who": "Who is leaving",
+    "replacement": "Who takes over",
+    "replacementNone": "Nobody yet",
+    "share": "{{done}} of {{total}} inches are woven, so this weaver has earned {{amount}}.",
+    "sharePerInch": "This weaver is paid per inch and has already earned week by week, so there is nothing to settle here.",
+    "confirm": "Shift the weaver"
+  },
+  "reports": {
+    "title": "Reports",
+    "from": "From",
+    "to": "To",
+    "total": "{{count}} inches woven",
+    "byWeek": "By week",
+    "byLoom": "By loom",
+    "byWorker": "By weaver",
+    "inches": "{{count}} inches",
+    "empty": "Nothing woven in these weeks.",
+    "note": "Approved entries only."
   },
   "outbox": {
     "waiting_one": "{{count}} entry saved on this phone, waiting to send",

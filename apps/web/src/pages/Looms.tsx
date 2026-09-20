@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
@@ -8,6 +9,7 @@ import {
   formatPaise,
   fromRupees,
   paise,
+  proRate,
   type LoomPlace,
   type WageType,
 } from "@loom/shared";
@@ -15,21 +17,20 @@ import {
 import { ProgressBar } from "@/components/ProgressBar.js";
 import { Button } from "@/components/ui/button.js";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog.js";
-import { Field, FormError, Input } from "@/components/ui/field.js";
+import { Field, FormError, Input, Select } from "@/components/ui/field.js";
 import { apiFetch } from "@/lib/api.js";
 import {
   useCreateLoom,
   useFinishSareeJob,
   useLooms,
   useSareeJobs,
+  useSareeTypes,
+  useShiftWorker,
   useStartSareeJob,
   type Loom,
   type SareeJob,
 } from "@/lib/production.js";
 import { useApiErrorMessage } from "@/lib/useApiErrorMessage.js";
-
-const selectClass =
-  "h-12 w-full rounded-xl bg-white px-4 text-base ring-1 ring-slate-300 focus:ring-2 focus:ring-slate-900 focus:outline-none";
 
 function AddLoomForm({ onDone }: { onDone: () => void }) {
   const { t } = useTranslation();
@@ -63,9 +64,8 @@ function AddLoomForm({ onDone }: { onDone: () => void }) {
 
       <Field label={t("looms.place")}>
         {(props) => (
-          <select
+          <Select
             {...props}
-            className={selectClass}
             value={place}
             onChange={(event) => setPlace(event.target.value as LoomPlace)}
           >
@@ -74,7 +74,7 @@ function AddLoomForm({ onDone }: { onDone: () => void }) {
                 {t(`loomPlace.${value}`)}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </Field>
 
@@ -103,12 +103,35 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
       ),
   });
 
+  const sareeTypes = useSareeTypes();
+
+  const [sareeTypeId, setSareeTypeId] = useState("");
   const [label, setLabel] = useState("");
   const [lengthInches, setLengthInches] = useState(String(DEFAULT_SAREE_LENGTH_INCHES));
   const [wageType, setWageType] = useState<WageType>("PER_SAREE");
   const [amount, setAmount] = useState("");
   const [workerIds, setWorkerIds] = useState<string[]>([]);
   const [amountError, setAmountError] = useState<string>();
+
+  /**
+   * Picking a type fills the fields in once. They stay editable, and whatever
+   * is submitted is what the saree keeps: the template is a shortcut, never a
+   * live link.
+   */
+  const pickSareeType = (id: string) => {
+    setSareeTypeId(id);
+    const picked = sareeTypes.data?.sareeTypes.find((type) => type.id === id);
+    if (!picked) return;
+
+    setLengthInches(String(picked.lengthInches));
+    if (picked.defaultWagePaise !== null) {
+      setWageType("PER_SAREE");
+      setAmount(String(picked.defaultWagePaise / 100));
+    } else if (picked.defaultRatePerInchPaise !== null) {
+      setWageType("PER_INCH");
+      setAmount(String(picked.defaultRatePerInchPaise / 100));
+    }
+  };
 
   const toggleWorker = (id: string) =>
     setWorkerIds((current) =>
@@ -137,6 +160,7 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
         lengthInches: Number(lengthInches),
         wageType,
         workerIds,
+        ...(sareeTypeId ? { sareeTypeId } : {}),
         ...(label.trim() ? { label: label.trim() } : {}),
         ...(wageType === "PER_SAREE"
           ? { wagePaise: amountPaise }
@@ -151,6 +175,28 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
   return (
     <form onSubmit={submit} className="mt-4 space-y-4 border-t border-slate-200 pt-4">
       <FormError>{toMessage(start.error)}</FormError>
+
+      {(sareeTypes.data?.sareeTypes.length ?? 0) > 0 ? (
+        <Field
+          label={`${t("sareeTypes.pick")} (${t("common.optional")})`}
+          hint={sareeTypeId ? t("sareeTypes.copied") : undefined}
+        >
+          {(props) => (
+            <Select
+              {...props}
+              value={sareeTypeId}
+              onChange={(event) => pickSareeType(event.target.value)}
+            >
+              <option value="">{t("sareeTypes.pickNone")}</option>
+              {sareeTypes.data?.sareeTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
+      ) : null}
 
       <Field label={`${t("saree.label")} (${t("common.optional")})`}>
         {(props) => (
@@ -177,9 +223,8 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
 
       <Field label={t("saree.wageType")}>
         {(props) => (
-          <select
+          <Select
             {...props}
-            className={selectClass}
             value={wageType}
             onChange={(event) => setWageType(event.target.value as WageType)}
           >
@@ -188,7 +233,7 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
                 {t(`wageType.${value}`)}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </Field>
 
@@ -249,11 +294,120 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
   );
 }
 
+/**
+ * Takes a weaver off a half-done saree. The share is worked out here with the
+ * same proRate the server uses, so the owner sees the number before agreeing
+ * to it rather than after.
+ */
+function ShiftWorkerDialog({
+  job,
+  open,
+  onClose,
+}: {
+  job: SareeJob;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const shift = useShiftWorker();
+  const toMessage = useApiErrorMessage();
+
+  const [leavingId, setLeavingId] = useState(job.workers[0]?.id ?? "");
+  const [replacementId, setReplacementId] = useState("");
+
+  const workers = useQuery({
+    queryKey: ["workers"],
+    queryFn: () =>
+      apiFetch<{ workers: { id: string; name: string; active: boolean }[] }>(
+        "/api/workers",
+      ),
+  });
+
+  const onThisSaree = new Set(job.workers.map((worker) => worker.id));
+  const available = (workers.data?.workers ?? []).filter(
+    (worker) => worker.active && !onThisSaree.has(worker.id),
+  );
+
+  const share =
+    job.wageType === "PER_SAREE" && job.wagePaise !== null
+      ? proRate(paise(job.wagePaise), job.inchesDone, job.lengthInches)
+      : null;
+
+  return (
+    <ConfirmDialog
+      open={open}
+      title={t("shift.title")}
+      confirmLabel={t("shift.confirm")}
+      cancelLabel={t("common.cancel")}
+      busy={shift.isPending}
+      onCancel={onClose}
+      onConfirm={() =>
+        shift.mutate(
+          {
+            sareeJobId: job.id,
+            workerId: leavingId,
+            ...(replacementId ? { replacementWorkerId: replacementId } : {}),
+          },
+          { onSuccess: onClose },
+        )
+      }
+    >
+      <div className="space-y-4">
+        <FormError>{toMessage(shift.error)}</FormError>
+
+        <Field label={t("shift.who")}>
+          {(props) => (
+            <Select
+              {...props}
+              value={leavingId}
+              onChange={(event) => setLeavingId(event.target.value)}
+            >
+              {job.workers.map((worker) => (
+                <option key={worker.id} value={worker.id}>
+                  {worker.name}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
+
+        <Field label={t("shift.replacement")}>
+          {(props) => (
+            <Select
+              {...props}
+              value={replacementId}
+              onChange={(event) => setReplacementId(event.target.value)}
+            >
+              <option value="">{t("shift.replacementNone")}</option>
+              {available.map((worker) => (
+                <option key={worker.id} value={worker.id}>
+                  {worker.name}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
+
+        <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          {share === null
+            ? t("shift.sharePerInch")
+            : t("shift.share", {
+                done: job.inchesDone,
+                total: job.lengthInches,
+                amount: formatPaise(share),
+              })}
+        </p>
+      </div>
+    </ConfirmDialog>
+  );
+}
+
 function LoomCard({ loom, job }: { loom: Loom; job: SareeJob | undefined }) {
   const { t } = useTranslation();
   const finish = useFinishSareeJob();
   const [starting, setStarting] = useState(false);
   const [confirmingFinish, setConfirmingFinish] = useState(false);
+  const [shifting, setShifting] = useState(false);
 
   const remaining = job ? job.lengthInches - job.inchesDone : 0;
 
@@ -309,14 +463,27 @@ function LoomCard({ loom, job }: { loom: Loom; job: SareeJob | undefined }) {
             {job.workers.map((worker) => worker.name).join(" · ")}
           </p>
 
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={finishSaree}
-            disabled={finish.isPending}
-          >
-            {t("saree.finish")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={finishSaree}
+              disabled={finish.isPending}
+            >
+              {t("saree.finish")}
+            </Button>
+            {job.workers.length > 0 ? (
+              <Button size="sm" variant="ghost" onClick={() => setShifting(true)}>
+                {t("shift.button")}
+              </Button>
+            ) : null}
+          </div>
+
+          <ShiftWorkerDialog
+            job={job}
+            open={shifting}
+            onClose={() => setShifting(false)}
+          />
 
           <ConfirmDialog
             open={confirmingFinish}
@@ -358,13 +525,21 @@ export function Looms() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">{t("looms.title")}</h1>
-        {!adding ? (
-          <Button size="sm" onClick={() => setAdding(true)}>
-            {t("looms.add")}
-          </Button>
-        ) : null}
+        <div className="flex items-center gap-2">
+          <Link
+            to="/saree-types"
+            className="rounded-xl px-3 py-2 text-sm font-medium text-slate-600 underline"
+          >
+            {t("sareeTypes.manage")}
+          </Link>
+          {!adding ? (
+            <Button size="sm" onClick={() => setAdding(true)}>
+              {t("looms.add")}
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       {adding ? <AddLoomForm onDone={() => setAdding(false)} /> : null}

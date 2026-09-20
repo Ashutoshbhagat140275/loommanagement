@@ -68,6 +68,23 @@ function useProductionMutation<TInput>(run: (input: TInput) => Promise<unknown>)
   });
 }
 
+export type SareeType = {
+  id: string;
+  name: string;
+  lengthInches: number;
+  defaultWagePaise: number | null;
+  defaultRatePerInchPaise: number | null;
+};
+
+export type ProductionReport = {
+  from: string;
+  to: string;
+  totalInches: number;
+  byWeek: { weekStart: string; inches: number }[];
+  byLoom: { loomId: string; number: string; inches: number }[];
+  byWorker: { workerId: string; name: string; inches: number }[];
+};
+
 export const useLooms = () =>
   useQuery({
     queryKey: ["looms"],
@@ -114,6 +131,45 @@ export const usePendingEntries = () =>
         "/api/production-entries?status=AWAITING_OWNER",
       ),
   });
+
+export const useSareeTypes = () =>
+  useQuery({
+    queryKey: ["saree-types"],
+    queryFn: () => apiFetch<{ sareeTypes: SareeType[] }>("/api/saree-types"),
+  });
+
+export const useProductionReport = (from: string, to: string) =>
+  useQuery({
+    queryKey: ["reports", "production", from, to],
+    queryFn: () =>
+      apiFetch<ProductionReport>(
+        `/api/reports/production?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+      ),
+  });
+
+export function useCreateSareeType() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: Record<string, unknown>) => apiPost("/api/saree-types", input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["saree-types"] }),
+  });
+}
+
+/** Take a weaver off a half-done saree, optionally handing it to someone else. */
+export const useShiftWorker = () =>
+  useProductionMutation(
+    (input: {
+      sareeJobId: string;
+      workerId: string;
+      replacementWorkerId?: string;
+    }) =>
+      apiPost(`/api/saree-jobs/${input.sareeJobId}/shift-worker`, {
+        workerId: input.workerId,
+        ...(input.replacementWorkerId
+          ? { replacementWorkerId: input.replacementWorkerId }
+          : {}),
+      }),
+  );
 
 export const useCreateLoom = () =>
   useProductionMutation((input: { number: string; place: LoomPlace }) =>
