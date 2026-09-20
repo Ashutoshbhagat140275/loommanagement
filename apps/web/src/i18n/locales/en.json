@@ -141,6 +141,13 @@
     "noSaree": "You are not on a saree right now. Ask your owner.",
     "history": "Earlier weeks"
   },
+  "outbox": {
+    "waiting_one": "{{count}} entry saved on this phone, waiting to send",
+    "waiting_other": "{{count}} entries saved on this phone, waiting to send",
+    "saved": "No internet. Saved on this phone and it will be sent on its own.",
+    "failed": "{{date}} · {{inches}} inches could not be sent",
+    "discard": "Remove"
+  },
   "approvals": {
     "title": "To approve",
     "empty": "Nothing waiting for you.",

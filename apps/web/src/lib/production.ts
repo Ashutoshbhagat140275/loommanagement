@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LoomPlace, LoomStatus, WageType } from "@loom/shared";
 
-import { apiFetch, apiPost } from "./api.js";
+import { ApiError, apiFetch, apiPost } from "./api.js";
+import { readLastKnown, writeLastKnown } from "./lastKnown.js";
 
 export type Loom = {
   id: string;
@@ -79,10 +80,30 @@ export const useSareeJobs = (status: "RUNNING" | "FINISHED" = "RUNNING") =>
     queryFn: () => apiFetch<{ sareeJobs: SareeJob[] }>(`/api/saree-jobs?status=${status}`),
   });
 
+/**
+ * The weaver's own sarees. Falls back to the last copy seen when the server
+ * cannot be reached, so the entry form is still usable at a loom with no
+ * signal. Owner screens deliberately do not do this: they are used where
+ * there is internet, and stale numbers there would be misleading.
+ */
 export const useMySareeJobs = () =>
   useQuery({
     queryKey: ["my-saree-jobs"],
-    queryFn: () => apiFetch<{ sareeJobs: MySareeJob[] }>("/api/my/saree-jobs"),
+    retry: false,
+    queryFn: async (): Promise<{ sareeJobs: MySareeJob[] }> => {
+      try {
+        const result = await apiFetch<{ sareeJobs: MySareeJob[] }>(
+          "/api/my/saree-jobs",
+        );
+        writeLastKnown("my-saree-jobs", result);
+        return result;
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) throw error;
+        const cached = readLastKnown<{ sareeJobs: MySareeJob[] }>("my-saree-jobs");
+        if (cached) return cached;
+        throw error;
+      }
+    },
   });
 
 export const usePendingEntries = () =>

@@ -129,6 +129,11 @@ export const startSareeJobSchema = z
   });
 
 export const createProductionEntrySchema = z.object({
+  /**
+   * Made on the phone before sending. Lets a retry after a lost reply return
+   * the entry already stored instead of filing the week twice.
+   */
+  clientId: z.uuid().optional(),
   /** Any day inside the week being reported; the server snaps it to Monday. */
   weekStart: z.iso.date(),
   /** Inches woven this week, not the saree's running total. */

@@ -84,6 +84,21 @@ export async function productionEntryRoutes(app: FastifyInstance) {
       const context = requireAuth(request);
       const input = createProductionEntrySchema.parse(request.body);
 
+      // A replay of something already stored. Answer with the stored entry
+      // rather than a conflict, so a phone that lost the reply can retry
+      // safely for as long as it needs to.
+      if (input.clientId) {
+        const already = await db.productionEntry.findFirst({
+          where: { clientId: input.clientId },
+          select: entrySelect,
+        });
+        if (already) {
+          return reply.status(200).send({
+            entry: { ...already, weekStart: toIsoDate(already.weekStart) },
+          });
+        }
+      }
+
       const job = await db.sareeJob.findFirst({
         where: { id: request.params.id },
         select: {
@@ -145,6 +160,7 @@ export async function productionEntryRoutes(app: FastifyInstance) {
           sareeJobId: job.id,
           weekStart,
           inches: input.inches,
+          clientId: input.clientId ?? null,
           ratePerInchPaise: job.ratePerInchPaise,
           status: autoApprove ? "APPROVED" : "AWAITING_OWNER",
           enteredByUserId: context.userId,

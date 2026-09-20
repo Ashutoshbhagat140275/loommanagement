@@ -303,6 +303,14 @@ model ProductionEntry {
   /// Inches woven during this week, not the saree's running total.
   inches Int
 
+  /// Id made on the phone before the entry is sent.
+  ///
+  /// A weaver files from the loom, often with no signal. When the reply is
+  /// lost the phone retries, and without this the same week would be filed
+  /// twice. Sending the same clientId again returns the entry already stored
+  /// instead of making another.
+  clientId String?
+
   /// The rate in force on the day it was entered. Changing the job's rate
   /// later must not rewrite what someone already earned.
   ratePerInchPaise Int?
@@ -317,5 +325,6 @@ model ProductionEntry {
   updatedAt DateTime @updatedAt
 
   @@unique([sareeJobId, weekStart])
+  @@unique([factoryId, clientId])
   @@index([factoryId, status])
 }

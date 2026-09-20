@@ -309,6 +309,34 @@ describe("weekly production entry", () => {
     assert.equal(confirmed.statusCode, 201);
   });
 
+  it("treats a repeat of the same clientId as the entry already stored", async () => {
+    const { sareeJobId, workerCookie } = await runningJob(true);
+    const clientId = "6f9619ff-8b86-4011-b42d-00c04fc964ff";
+
+    const first = await fileEntry(app, workerCookie, sareeJobId, {
+      clientId,
+      weekStart: "2026-09-14",
+      inches: 20,
+    });
+    assert.equal(first.statusCode, 201);
+    const firstId = first.json<{ entry: { id: string } }>().entry.id;
+
+    // The phone never saw the reply and sends it again.
+    const retry = await fileEntry(app, workerCookie, sareeJobId, {
+      clientId,
+      weekStart: "2026-09-14",
+      inches: 20,
+    });
+    assert.equal(retry.statusCode, 200);
+    assert.equal(retry.json<{ entry: { id: string } }>().entry.id, firstId);
+
+    assert.equal(
+      await prisma.productionEntry.count({ where: { sareeJobId } }),
+      1,
+      "a retry must not file the week a second time",
+    );
+  });
+
   it("stops a weaver filing against a saree they are not on", async () => {
     const { owner, loomId } = await setupFactory();
     const onJob = await addWorker(owner, { name: "Suresh", phone: "9876543210" });

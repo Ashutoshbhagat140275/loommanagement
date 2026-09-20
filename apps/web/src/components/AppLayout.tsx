@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button.js";
 import { cn } from "@/lib/cn.js";
 import { useSession, useSignOut } from "@/lib/session.js";
+import { useOutboxSync } from "@/lib/useOutbox.js";
 
 function BottomNav() {
   const { t } = useTranslation();
@@ -54,6 +55,7 @@ export function AppLayout() {
   const { t } = useTranslation();
   const { data: user } = useSession();
   const signOut = useSignOut();
+  useOutboxSync();
 
   return (
     <div className="flex min-h-dvh flex-col">

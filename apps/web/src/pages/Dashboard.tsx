@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import { OutboxBanner } from "@/components/OutboxBanner.js";
 import { ProgressBar } from "@/components/ProgressBar.js";
 import { WeeklyEntryForm } from "@/components/WeeklyEntryForm.js";
 import { useMySareeJobs } from "@/lib/production.js";
@@ -15,14 +16,18 @@ function WeaverHome() {
   const list = jobs.data?.sareeJobs ?? [];
   if (list.length === 0) {
     return (
-      <p className="rounded-2xl bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200">
-        {t("entry.noSaree")}
-      </p>
+      <div className="space-y-4">
+        <OutboxBanner />
+        <p className="rounded-2xl bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200">
+          {t("entry.noSaree")}
+        </p>
+      </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      <OutboxBanner />
       {list.map((job) => (
         <section key={job.id} className="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <div>
