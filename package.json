@@ -11,6 +11,7 @@
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
+    "preview": "pnpm -F @loom/web build && pnpm -F @loom/web exec vite preview --port 5173 --strictPort",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down"
   },
