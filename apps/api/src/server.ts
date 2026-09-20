@@ -33,6 +33,10 @@ export async function buildServer() {
   await app.register(cors, {
     origin: [env.WEB_ORIGIN],
     credentials: true,
+    // Spelled out because the default list leaves out PATCH and DELETE, and
+    // the browser then blocks those at the preflight. Tests never catch this:
+    // app.inject() talks to the router directly and never does a preflight.
+    methods: ["GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   });
   await app.register(cookie);
 

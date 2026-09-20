@@ -21,7 +21,9 @@
   },
   "nav": {
     "home": "Home",
-    "workers": "Workers"
+    "looms": "Looms",
+    "workers": "Workers",
+    "approvals": "Approve"
   },
   "auth": {
     "signOut": "Sign out",
@@ -92,5 +94,59 @@
     "noLogin": "No login",
     "inactive": "Inactive",
     "created": "Worker added"
+  },
+  "loomPlace": {
+    "IN_FACTORY": "In factory",
+    "AT_WEAVER_HOME": "At weaver's home"
+  },
+  "loomStatus": {
+    "RUNNING": "Running",
+    "STOPPED": "Stopped",
+    "REPAIR": "Under repair"
+  },
+  "looms": {
+    "title": "Looms",
+    "add": "Add loom",
+    "number": "Loom number",
+    "place": "Where is it",
+    "empty": "No looms yet. Add your first one.",
+    "idle": "No saree on this loom",
+    "startSaree": "Start saree"
+  },
+  "saree": {
+    "start": "Start a saree",
+    "label": "Saree name",
+    "length": "Length in inches",
+    "wageType": "How this saree is paid",
+    "wage": "Wage for the whole saree (₹)",
+    "ratePerInch": "Rate per inch (₹)",
+    "weavers": "Weavers",
+    "weaversHint": "Pick one or two. With two, the money splits half and half.",
+    "progress": "{{done}} of {{total}} inches",
+    "finish": "Saree finished",
+    "finishedOn": "Finished"
+  },
+  "entry": {
+    "title": "This week's weaving",
+    "week": "Week",
+    "inches": "Inches woven this week",
+    "inchesHint": "Only this week's inches, not the saree's total",
+    "submit": "Record",
+    "recorded": "Recorded",
+    "waiting": "Waiting for owner",
+    "approved": "Approved",
+    "remaining": "{{count}} inches left on this saree",
+    "confirmOverflow": "That is more than the saree has left. Record it anyway?",
+    "confirm": "Yes, record it",
+    "noSaree": "You are not on a saree right now. Ask your owner.",
+    "history": "Earlier weeks"
+  },
+  "approvals": {
+    "title": "To approve",
+    "empty": "Nothing waiting for you.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "correctedInches": "Inches",
+    "filedBy": "Loom {{loom}}"
   }
 }

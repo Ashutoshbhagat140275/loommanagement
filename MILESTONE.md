@@ -2,7 +2,7 @@
 
 Progress tracker. The full design lives in [PLAN.md](PLAN.md).
 
-**Status:** Phase 0 and Phase 1 done · Phase 2 next
+**Status:** Phases 0–2 done, apart from saree types, reports and the shift-weaver screen
 **Last updated:** 2026-09-20
 
 Run `pnpm db:up` once, then `pnpm dev`. Tests: `pnpm test`.
@@ -61,10 +61,11 @@ API:
 
 Web:
 
-- [ ] Loom list with progress bars
-- [ ] Start saree, finish saree, shift weaver
-- [ ] Weekly inch entry on the weaver's phone
-- [ ] Owner approval queue
+- [x] Loom list with progress bars
+- [x] Add loom, start saree, finish saree
+- [x] Weekly inch entry on the weaver's phone, with the overflow confirmation
+- [x] Owner approval queue: approve, correct the number, or reject
+- [ ] Shift weaver (API done, no screen yet)
 
 ## Phase 3 — Offline
 

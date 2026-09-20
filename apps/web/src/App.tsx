@@ -5,7 +5,9 @@ import type { Role } from "@loom/shared";
 
 import { AppLayout } from "@/components/AppLayout.js";
 import { useSession } from "@/lib/session.js";
+import { Approvals } from "@/pages/Approvals.js";
 import { Dashboard } from "@/pages/Dashboard.js";
+import { Looms } from "@/pages/Looms.js";
 import { SignIn } from "@/pages/SignIn.js";
 import { SignUp } from "@/pages/SignUp.js";
 import { Workers } from "@/pages/Workers.js";
@@ -82,10 +84,26 @@ export function App() {
         >
           <Route index element={<Dashboard />} />
           <Route
+            path="/looms"
+            element={
+              <RequireAuth roles={["OWNER", "SUPERVISOR"]}>
+                <Looms />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/workers"
             element={
               <RequireAuth roles={["OWNER", "SUPERVISOR"]}>
                 <Workers />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/approvals"
+            element={
+              <RequireAuth roles={["OWNER"]}>
+                <Approvals />
               </RequireAuth>
             }
           />

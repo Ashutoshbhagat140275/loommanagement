@@ -35,7 +35,15 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     response = await fetch(`${BASE_URL}${path}`, {
       ...init,
       credentials: "include",
-      headers: { "Content-Type": "application/json", ...init?.headers },
+      headers: {
+        // Only claim a JSON body when there is one. Fastify rejects a request
+        // that says application/json but carries nothing, which is every
+        // DELETE we send.
+        ...(init?.body === undefined
+          ? {}
+          : { "Content-Type": "application/json" }),
+        ...init?.headers,
+      },
     });
   } catch {
     // fetch only rejects when the request never got an answer.

@@ -12,7 +12,15 @@ function BottomNav() {
 
   const items = [
     { to: "/", label: t("nav.home"), end: true },
-    ...(canSeeWorkers ? [{ to: "/workers", label: t("nav.workers"), end: false }] : []),
+    ...(canSeeWorkers
+      ? [
+          { to: "/looms", label: t("nav.looms"), end: false },
+          { to: "/workers", label: t("nav.workers"), end: false },
+        ]
+      : []),
+    ...(user?.role === "OWNER"
+      ? [{ to: "/approvals", label: t("nav.approvals"), end: false }]
+      : []),
   ];
 
   return (
