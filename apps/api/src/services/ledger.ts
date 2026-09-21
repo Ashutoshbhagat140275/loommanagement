@@ -139,12 +139,49 @@ export type ShiftSettlement = {
   /** The part of the wage this weaver held. Null for a per-inch weaver. */
   sharePaise: Paise | null;
   earnedPaise: Paise | null;
-  /** Handed to the replacement, if there is one. */
+  /** The part they did not weave. Goes to the replacement, or failing that
+   * to whoever carries on with the saree. */
   unearnedPaise: Paise | null;
   paidPaise: Paise;
   /** Moves to the old balance. Positive: owner owes. Negative: weaver owes. */
   carriedPaise: Paise;
+  /** Other weavers staying on the saree. With no replacement, they take the
+   * unwoven part between them. */
+  continuing: { id: string; name: string }[];
 };
+
+type ShareLink = { workerId: string; joinedAtInches: number; earnedBeforeJoinPaise: number };
+
+/**
+ * What a weaver has earned on a per-saree saree so far. Their share is what
+ * has been credited to them net of anything taken back; the part banked
+ * before they last joined is theirs outright, and the rest is spread over the
+ * stretch from that point to the end.
+ */
+async function perSareeEarnings(
+  db: LedgerDb,
+  sareeJobId: string,
+  link: ShareLink,
+  inchesDone: number,
+  lengthInches: number,
+) {
+  const sharePaise = await sumLines(db, {
+    workerId: link.workerId,
+    sareeJobId,
+    section: "CURRENT_WORK",
+    kind: { in: ["WORK_EARNED", "SHIFT_ADJUSTMENT"] },
+  });
+  return {
+    sharePaise,
+    ...shiftShare({
+      sharePaise,
+      earnedBeforeJoinPaise: paise(link.earnedBeforeJoinPaise),
+      inchesDone,
+      inchesAtJoin: link.joinedAtInches,
+      lengthInches,
+    }),
+  };
+}
 
 /**
  * What shifting a weaver off a saree would do to their passbook, without
@@ -165,11 +202,21 @@ export async function previewShift(
   });
   if (!job) throw notFound("No such saree");
 
-  const link = await db.sareeJobWorker.findFirst({
-    where: { sareeJobId: input.sareeJobId, workerId: input.workerId, active: true },
-    select: { joinedAtInches: true },
+  const links = await db.sareeJobWorker.findMany({
+    where: { sareeJobId: input.sareeJobId, active: true },
+    select: {
+      workerId: true,
+      joinedAtInches: true,
+      earnedBeforeJoinPaise: true,
+      worker: { select: { name: true } },
+    },
+    orderBy: [{ joinedAt: "asc" }, { id: "asc" }],
   });
+  const link = links.find((item) => item.workerId === input.workerId);
   if (!link) throw notFound("That weaver is not on this saree");
+  const continuing = links
+    .filter((item) => item.workerId !== input.workerId)
+    .map((item) => ({ id: item.workerId, name: item.worker.name }));
 
   const onJob = { workerId: input.workerId, sareeJobId: input.sareeJobId };
   const balance = await sumLines(db, { ...onJob, section: "CURRENT_WORK" });
@@ -190,20 +237,17 @@ export async function previewShift(
       unearnedPaise: null,
       paidPaise,
       carriedPaise: balance,
+      continuing,
     };
   }
 
-  const sharePaise = await sumLines(db, {
-    ...onJob,
-    section: "CURRENT_WORK",
-    kind: "WORK_EARNED",
-  });
-  const { earnedPaise, unearnedPaise } = shiftShare({
-    sharePaise,
-    inchesDone: input.inchesDone,
-    inchesAtJoin: link.joinedAtInches,
-    lengthInches: job.lengthInches,
-  });
+  const { sharePaise, earnedPaise, unearnedPaise } = await perSareeEarnings(
+    db,
+    input.sareeJobId,
+    link,
+    input.inchesDone,
+    job.lengthInches,
+  );
 
   return {
     wageType: "PER_SAREE",
@@ -215,6 +259,7 @@ export async function previewShift(
     paidPaise,
     // After the unwoven part is taken back, what is left on this saree.
     carriedPaise: paise(balance - unearnedPaise),
+    continuing,
   };
 }
 
@@ -224,6 +269,11 @@ export async function previewShift(
  * The unwoven part of a per-saree wage is taken back, and whatever is left on
  * the saree, owed either way, moves to their old balance. The saree does not
  * follow them: their next one starts clean at its own wage.
+ *
+ * The unwoven part goes to the replacement if the owner named one. If not,
+ * whoever stays on the saree carries on alone and takes it, as the owner
+ * decided. Each of them has their share re-based at this point, so that if
+ * they are shifted later too, the sum still comes out exact.
  */
 export async function applyShift(
   db: LedgerDb,
@@ -289,21 +339,97 @@ export async function applyShift(
     );
   }
 
-  // Whoever takes over earns the part of the wage the leaving weaver did not.
-  if (
-    input.replacementWorkerId &&
-    settlement.unearnedPaise !== null &&
-    settlement.unearnedPaise > 0
-  ) {
-    lines.push(
-      line({
+  const unearned = settlement.unearnedPaise ?? paise(0);
+
+  // Close the leaving weaver's place on the saree.
+  await db.sareeJobWorker.updateMany({
+    where: { sareeJobId: input.sareeJobId, workerId: input.workerId, active: true },
+    data: { active: false, leftAt: new Date(), leftAtInches: input.inchesDone },
+  });
+
+  if (input.replacementWorkerId) {
+    // A replacement joins here. Anything they earned on this saree before, in
+    // an earlier stint, is banked; their new share covers from here to the end.
+    const bankedBefore = await sumLines(db, {
+      workerId: input.replacementWorkerId,
+      sareeJobId: input.sareeJobId,
+      section: "CURRENT_WORK",
+      kind: { in: ["WORK_EARNED", "SHIFT_ADJUSTMENT"] },
+    });
+    await db.sareeJobWorker.upsert({
+      where: {
+        sareeJobId_workerId: {
+          sareeJobId: input.sareeJobId,
+          workerId: input.replacementWorkerId,
+        },
+      },
+      create: {
+        factoryId: actor.factoryId,
+        sareeJobId: input.sareeJobId,
         workerId: input.replacementWorkerId,
-        section: "CURRENT_WORK",
-        kind: "WORK_EARNED",
-        amountPaise: settlement.unearnedPaise,
-        onSaree: true,
-      }),
-    );
+        joinedAtInches: input.inchesDone,
+        earnedBeforeJoinPaise: bankedBefore,
+      },
+      update: {
+        active: true,
+        leftAt: null,
+        leftAtInches: null,
+        joinedAtInches: input.inchesDone,
+        earnedBeforeJoinPaise: bankedBefore,
+      },
+    });
+
+    if (unearned > 0) {
+      lines.push(
+        line({
+          workerId: input.replacementWorkerId,
+          section: "CURRENT_WORK",
+          kind: "WORK_EARNED",
+          amountPaise: unearned,
+          onSaree: true,
+        }),
+      );
+    }
+  } else if (unearned > 0 && settlement.continuing.length > 0) {
+    // Nobody replaces them: whoever stays finishes the saree alone and takes
+    // the unwoven part. Re-base each of them first, banking what they have
+    // earned so far, so their larger share is spread over what is left.
+    const job = await db.sareeJob.findFirst({
+      where: { id: input.sareeJobId },
+      select: { lengthInches: true },
+    });
+    const shares = splitEvenly(unearned, settlement.continuing.length);
+
+    for (const [index, stayer] of settlement.continuing.entries()) {
+      const link = await db.sareeJobWorker.findFirst({
+        where: { sareeJobId: input.sareeJobId, workerId: stayer.id, active: true },
+        select: { workerId: true, joinedAtInches: true, earnedBeforeJoinPaise: true },
+      });
+      if (!link || !job) continue;
+
+      const { earnedPaise } = await perSareeEarnings(
+        db,
+        input.sareeJobId,
+        link,
+        input.inchesDone,
+        job.lengthInches,
+      );
+
+      await db.sareeJobWorker.updateMany({
+        where: { sareeJobId: input.sareeJobId, workerId: stayer.id, active: true },
+        data: { joinedAtInches: input.inchesDone, earnedBeforeJoinPaise: earnedPaise },
+      });
+
+      lines.push(
+        line({
+          workerId: stayer.id,
+          section: "CURRENT_WORK",
+          kind: "WORK_EARNED",
+          amountPaise: shares[index]!,
+          onSaree: true,
+        }),
+      );
+    }
   }
 
   if (lines.length > 0) await db.ledgerLine.createMany({ data: lines });

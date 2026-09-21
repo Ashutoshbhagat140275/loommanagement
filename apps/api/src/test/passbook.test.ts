@@ -462,6 +462,66 @@ describe("shifting a weaver off a half-done saree", () => {
     assert.equal(sareeBalance(await passbookOf(owner, mahesh), saree), rupees(25_000));
   });
 
+  it("gives the unwoven half to the weaver who carries on alone when nobody replaces", async () => {
+    // The owner's rule: the one who finishes it gets it.
+    const { owner, loomA } = await setup();
+    const ramesh = await addWorker(owner, "Ramesh", "9876543210");
+    const mahesh = await addWorker(owner, "Mahesh", "9876500000");
+    const saree = await startSaree(owner, {
+      loomId: loomA,
+      lengthInches: 216,
+      wageType: "PER_SAREE",
+      wagePaise: rupees(50_000),
+      workerIds: [ramesh, mahesh],
+    });
+    await fileEntry(app, owner.cookie, saree, { weekStart: "2026-09-14", inches: 108 });
+
+    const result = await shift(owner, saree, { workerId: ramesh });
+    assert.equal(result.earnedPaise, rupees(12_500));
+
+    // Mahesh held Rs 25,000 and now also Ramesh's unwoven Rs 12,500.
+    assert.equal(sareeBalance(await passbookOf(owner, mahesh), saree), rupees(37_500));
+  });
+
+  it("still pays exactly if the weaver who carried on is shifted off later too", async () => {
+    // Mahesh inherits at inch 108 and leaves at 162. He has earned his own
+    // half up to 162 (Rs 18,750) and Ramesh's half from 108 to 162 (Rs 6,250):
+    // Rs 25,000. Without re-basing his share it would come out at Rs 28,125.
+    const { owner, loomA } = await setup();
+    const ramesh = await addWorker(owner, "Ramesh", "9876543210");
+    const mahesh = await addWorker(owner, "Mahesh", "9876500000");
+    const saree = await startSaree(owner, {
+      loomId: loomA,
+      lengthInches: 216,
+      wageType: "PER_SAREE",
+      wagePaise: rupees(50_000),
+      workerIds: [ramesh, mahesh],
+    });
+    await fileEntry(app, owner.cookie, saree, { weekStart: "2026-09-14", inches: 108 });
+    await shift(owner, saree, { workerId: ramesh });
+
+    await fileEntry(app, owner.cookie, saree, { weekStart: "2026-09-21", inches: 54 });
+    const second = await shift(owner, saree, { workerId: mahesh });
+
+    assert.equal(second.earnedPaise, rupees(25_000));
+  });
+
+  it("pays the unwoven part to nobody when the only weaver leaves and nobody replaces him", async () => {
+    const { owner, ramesh, saree } = await halfWoven(20_000);
+
+    await shift(owner, saree, { workerId: ramesh });
+
+    // Only what was woven is owed to anyone for this saree now.
+    const credited = await prisma.ledgerLine.aggregate({
+      where: {
+        sareeJobId: saree,
+        kind: { in: ["WORK_EARNED", "SHIFT_ADJUSTMENT"] },
+      },
+      _sum: { amountPaise: true },
+    });
+    assert.equal(credited._sum.amountPaise, rupees(25_000));
+  });
+
   it("shows the owner the same numbers before he agrees as it saves after", async () => {
     const { owner, ramesh, saree } = await halfWoven(20_000);
 

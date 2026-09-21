@@ -56,6 +56,7 @@ export type ShiftPreview = {
   unearnedPaise: number | null;
   paidPaise: number;
   carriedPaise: number;
+  continuing: { id: string; name: string }[];
 };
 
 export const usePassbook = (workerId: string) =>

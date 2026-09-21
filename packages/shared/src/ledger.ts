@@ -29,21 +29,30 @@ export function describeBalance(amount: number): {
  *
  * Weaving past the saree's length earns nothing extra: the share is the most
  * a weaver can be owed for it.
+ *
+ * `earnedBeforeJoinPaise` is what they had already banked when their share
+ * last changed, which happens when a weaver takes over someone else's
+ * unwoven part half way through. Only the rest of their share is spread over
+ * the stretch from that point on.
  */
 export function shiftShare(input: {
   sharePaise: Paise;
+  earnedBeforeJoinPaise?: Paise;
   inchesDone: number;
   inchesAtJoin: number;
   lengthInches: number;
 }): { earnedPaise: Paise; unearnedPaise: Paise } {
+  const banked = input.earnedBeforeJoinPaise ?? paise(0);
+  const stretchShare = subtract(input.sharePaise, banked);
   const stretch = input.lengthInches - input.inchesAtJoin;
   const woven = Math.max(
     0,
     Math.min(input.inchesDone, input.lengthInches) - input.inchesAtJoin,
   );
 
-  const earnedPaise =
-    stretch > 0 ? proRate(input.sharePaise, woven, stretch) : input.sharePaise;
+  const earnedOnStretch =
+    stretch > 0 ? proRate(stretchShare, woven, stretch) : stretchShare;
+  const earnedPaise = paise(banked + earnedOnStretch);
 
   return { earnedPaise, unearnedPaise: subtract(input.sharePaise, earnedPaise) };
 }

@@ -511,11 +511,20 @@ function ShiftWorkerDialog({
                       })
                     : t("shift.carryNone")}
               </p>
-              {replacementId && (numbers.unearnedPaise ?? 0) > 0 ? (
+              {(numbers.unearnedPaise ?? 0) > 0 ? (
                 <p>
-                  {t("shift.toReplacement", {
-                    amount: formatAmount(numbers.unearnedPaise ?? 0),
-                  })}
+                  {replacementId
+                    ? t("shift.toReplacement", {
+                        amount: formatAmount(numbers.unearnedPaise ?? 0),
+                      })
+                    : numbers.continuing.length > 0
+                      ? t("shift.toContinuing", {
+                          amount: formatAmount(numbers.unearnedPaise ?? 0),
+                          names: numbers.continuing.map((worker) => worker.name).join(", "),
+                        })
+                      : t("shift.toNobody", {
+                          amount: formatAmount(numbers.unearnedPaise ?? 0),
+                        })}
                 </p>
               ) : null}
             </>

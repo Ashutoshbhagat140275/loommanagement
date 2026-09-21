@@ -341,6 +341,12 @@ model SareeJobWorker {
   /// from here to the end, so shifting them later needs this.
   joinedAtInches Int @default(0)
 
+  /// What this weaver had already earned on the saree when their share last
+  /// changed. Their share covers joinedAtInches to the end; this is what they
+  /// had banked before that point. Only non-zero once a weaver has taken over
+  /// someone else's unwoven share part way through.
+  earnedBeforeJoinPaise Int @default(0)
+
   /// How many inches the saree had reached when this weaver was taken off it.
   /// Phase 5 needs this to work out their share: inches / length x wage.
   leftAtInches Int?

@@ -248,10 +248,10 @@ export async function sareeJobRoutes(app: FastifyInstance) {
 
       const inchesDone = await approvedInches(db, job.id);
 
-      const settlement = await db.$transaction(async (tx) => {
-        // Settle the passbook first: it reads the weaver's link to the saree,
-        // which is closed straight after.
-        const result = await applyShift(
+      // The ledger settles the money and moves weavers on and off the saree
+      // together, in one transaction.
+      const settlement = await db.$transaction((tx) =>
+        applyShift(
           tx,
           { factoryId, userId },
           {
@@ -260,38 +260,8 @@ export async function sareeJobRoutes(app: FastifyInstance) {
             inchesDone,
             replacementWorkerId: input.replacementWorkerId ?? null,
           },
-        );
-
-        await tx.sareeJobWorker.update({
-          where: { id: link.id },
-          data: { active: false, leftAt: new Date(), leftAtInches: inchesDone },
-        });
-
-        if (input.replacementWorkerId) {
-          await tx.sareeJobWorker.upsert({
-            where: {
-              sareeJobId_workerId: {
-                sareeJobId: job.id,
-                workerId: input.replacementWorkerId,
-              },
-            },
-            create: {
-              factoryId,
-              sareeJobId: job.id,
-              workerId: input.replacementWorkerId,
-              joinedAtInches: inchesDone,
-            },
-            update: {
-              active: true,
-              leftAt: null,
-              leftAtInches: null,
-              joinedAtInches: inchesDone,
-            },
-          });
-        }
-
-        return result;
-      });
+        ),
+      );
 
       return {
         shift: {

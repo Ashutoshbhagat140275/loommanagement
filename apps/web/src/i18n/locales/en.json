@@ -253,6 +253,8 @@
     "carryWorkerOwes": "{{amount}} moves to their old balance, owed by them.",
     "carryNone": "Nothing is left to move.",
     "toReplacement": "The {{amount}} they did not weave goes to whoever takes over.",
+    "toContinuing": "The {{amount}} they did not weave goes to {{names}}, who carries on alone.",
+    "toNobody": "Nobody is left on this saree, so the {{amount}} they did not weave is not paid to anyone.",
     "confirm": "Shift the weaver"
   },
   "passbook": {
