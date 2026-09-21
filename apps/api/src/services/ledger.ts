@@ -415,6 +415,31 @@ export async function payWorker(
   return { cashPaise, cutPaise, groupId };
 }
 
+/**
+ * A weaver bought material for a saree with his own money and the owner chose
+ * to pay him back later: it goes into his old balance as owed to him, and is
+ * paid off like any other old balance.
+ */
+export async function creditMaterialReimbursement(
+  db: LedgerDb,
+  actor: Actor,
+  input: { workerId: string; amountPaise: number; note: string | null },
+) {
+  await lockWorker(db, actor, input.workerId);
+  await db.ledgerLine.create({
+    data: {
+      factoryId: actor.factoryId,
+      workerId: input.workerId,
+      section: "OLD_BALANCE",
+      kind: "MATERIAL_REIMBURSEMENT",
+      amountPaise: input.amountPaise,
+      groupId: randomUUID(),
+      note: input.note,
+      createdByUserId: actor.userId,
+    },
+  });
+}
+
 /** The owner paying off what he owes from an old saree. */
 export async function settleOldBalance(
   db: LedgerDb,

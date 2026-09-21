@@ -4,9 +4,12 @@ import {
   DEFAULT_SAREE_LENGTH_INCHES,
   LOOM_PLACES,
   LOOM_STATUSES,
+  MATERIAL_UNITS,
+  REIMBURSEMENT_METHODS,
   WAGE_TYPES,
 } from "./domain.js";
 import { MAX_PAISE } from "./money.js";
+import { MAX_QUANTITY_MILLI } from "./quantity.js";
 
 /**
  * Indian mobile number, stored as 10 digits with no country code.
@@ -111,12 +114,25 @@ export const productionReportQuerySchema = z.object({
   to: z.iso.date(),
 });
 
+/** A quantity of material, in thousandths of its unit. */
+const quantityMilliSchema = z
+  .int()
+  .min(1, "Enter a quantity")
+  .max(MAX_QUANTITY_MILLI);
+
+const materialLineSchema = z.object({
+  materialId: z.string().min(1),
+  quantityMilli: quantityMilliSchema,
+});
+
 /**
  * Starting a saree copies its wage onto the job, so editing the saree type
  * later cannot change what a weaver already earned.
  */
 export const startSareeJobSchema = z
   .object({
+    /** Material handed over as the saree starts, which is the usual time. */
+    materials: z.array(materialLineSchema).max(20).default([]),
     loomId: z.string().min(1),
     sareeTypeId: z.string().min(1).optional(),
     label: z.string().trim().max(120).optional(),
@@ -161,6 +177,44 @@ export const createProductionEntrySchema = z.object({
 export const reviewProductionEntrySchema = z.object({
   /** The owner may correct the number before approving it. */
   inches: inchesSchema.optional(),
+});
+
+export const createMaterialSchema = z.object({
+  name: z.string().trim().min(1, "Enter a name").max(80),
+  unit: z.enum(MATERIAL_UNITS),
+  lowStockAtMilli: z.int().min(0).max(MAX_QUANTITY_MILLI).optional(),
+});
+
+/** The unit cannot change: every quantity already recorded is in it. */
+export const updateMaterialSchema = z.object({
+  name: z.string().trim().min(1).max(80).optional(),
+  lowStockAtMilli: z.int().min(0).max(MAX_QUANTITY_MILLI).nullable().optional(),
+});
+
+/**
+ * Buying material. The cost is the bill total. It can be left out for opening
+ * stock the owner already had before using the app.
+ */
+export const recordPurchaseSchema = z.object({
+  quantityMilli: quantityMilliSchema,
+  costPaise: z.int().min(0).max(MAX_PAISE).optional(),
+  supplier: z.string().trim().max(120).optional(),
+  note: z.string().trim().max(300).optional(),
+});
+
+export const giveMaterialSchema = materialLineSchema;
+export const returnMaterialSchema = materialLineSchema;
+
+/**
+ * A weaver bought material for this saree himself. It never passed through
+ * the store room, so stock is not touched; the owner pays him back either in
+ * cash now or into his passbook's old balance.
+ */
+export const weaverBoughtMaterialSchema = materialLineSchema.extend({
+  workerId: z.string().min(1),
+  costPaise: z.int().min(1, "Enter what the weaver paid").max(MAX_PAISE),
+  reimbursement: z.enum(REIMBURSEMENT_METHODS),
+  note: z.string().trim().max(300).optional(),
 });
 
 /** A money amount that must actually be something. */

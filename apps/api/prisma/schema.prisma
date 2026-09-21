@@ -49,6 +49,32 @@ enum ProductionEntryStatus {
   AWAITING_OWNER
 }
 
+enum MaterialUnit {
+  KG
+  BUNDLE
+}
+
+enum StockMovementKind {
+  /// Into the store room. Also used for opening stock, with no cost.
+  PURCHASE
+  GIVEN_TO_SAREE
+  RETURNED_FROM_SAREE
+  /// Bought by the weaver for a saree and paid back. Never in the store room,
+  /// so it does not change stock; it only adds to the saree's cost.
+  BOUGHT_BY_WEAVER
+}
+
+enum ReimbursementMethod {
+  CASH_NOW
+  INTO_PASSBOOK
+}
+
+/// Once finished, a saree is stock: in the store room, or sold.
+enum FinishedSareeStatus {
+  IN_STOCK
+  SOLD
+}
+
 /// A weaver's passbook has two sections that never mix on their own.
 enum LedgerSection {
   /// Money for a particular saree: its wage or its inches, and what was paid
@@ -89,6 +115,7 @@ model Factory {
   looms      Loom[]
   sareeTypes SareeType[]
   sareeJobs  SareeJob[]
+  materials  Material[]
 }
 
 model User {
@@ -195,8 +222,9 @@ model Worker {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  jobs        SareeJobWorker[]
-  ledgerLines LedgerLine[]
+  jobs              SareeJobWorker[]
+  ledgerLines       LedgerLine[]
+  materialPurchases StockMovement[]
 
   @@unique([factoryId, phone])
   @@index([factoryId])
@@ -275,12 +303,17 @@ model SareeJob {
   startedAt  DateTime       @default(now())
   finishedAt DateTime?
 
+  /// Set when the saree is finished. Null while it is still on the loom.
+  saleStatus FinishedSareeStatus?
+  soldAt     DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  workers     SareeJobWorker[]
-  entries     ProductionEntry[]
-  ledgerLines LedgerLine[]
+  workers        SareeJobWorker[]
+  entries        ProductionEntry[]
+  ledgerLines    LedgerLine[]
+  stockMovements StockMovement[]
 
   @@index([factoryId, status])
   @@index([loomId])
@@ -360,6 +393,70 @@ model ProductionEntry {
   @@unique([sareeJobId, weekStart])
   @@unique([factoryId, clientId])
   @@index([factoryId, status])
+}
+
+/// Silk yarn, zari and so on. Each material has one unit: an owner who buys
+/// zari both by the bundle and by weight keeps them as two materials.
+model Material {
+  id String @id @default(cuid())
+
+  factoryId String
+  factory   Factory @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+
+  name String
+  unit MaterialUnit
+
+  /// Warn when stock falls to this or below, in thousandths of a unit.
+  lowStockAtMilli Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movements StockMovement[]
+
+  @@unique([factoryId, name])
+  @@index([factoryId])
+}
+
+/// Every time material moves. Like the passbook, these are only ever added:
+/// stock on hand is always worked out from them, never stored.
+///
+/// Quantities are whole thousandths of the material's unit, so 2.5 kg is 2500
+/// and 3 bundles is 3000, for the same reason money is in paise: no rounding
+/// errors from decimals.
+model StockMovement {
+  id String @id @default(cuid())
+
+  factoryId String
+
+  materialId String
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Restrict)
+
+  kind StockMovementKind
+
+  /// Always positive; the kind says which way it moved.
+  quantityMilli Int
+
+  /// What it cost in total, where known. Null for opening stock recorded
+  /// without a price, and for anything given out before a priced purchase.
+  costPaise Int?
+
+  supplier String?
+
+  sareeJobId String?
+  sareeJob   SareeJob? @relation(fields: [sareeJobId], references: [id], onDelete: Restrict)
+
+  /// The weaver who paid, for BOUGHT_BY_WEAVER.
+  workerId      String?
+  worker        Worker?              @relation(fields: [workerId], references: [id], onDelete: Restrict)
+  reimbursement ReimbursementMethod?
+
+  note            String?
+  createdByUserId String
+  createdAt       DateTime @default(now())
+
+  @@index([factoryId, materialId])
+  @@index([sareeJobId])
 }
 
 /// One line in a weaver's passbook. The replacement for the owner's khata.

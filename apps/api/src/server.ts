@@ -14,6 +14,7 @@ import { productionEntryRoutes } from "./routes/productionEntries.js";
 import { reportRoutes } from "./routes/reports.js";
 import { sareeJobRoutes } from "./routes/sareeJobs.js";
 import { sareeTypeRoutes } from "./routes/sareeTypes.js";
+import { stockRoutes } from "./routes/stock.js";
 import { workerRoutes } from "./routes/workers.js";
 
 export async function buildServer() {
@@ -55,6 +56,7 @@ export async function buildServer() {
   await app.register(sareeTypeRoutes);
   await app.register(reportRoutes);
   await app.register(passbookRoutes);
+  await app.register(stockRoutes);
 
   app.get("/health", async () => {
     await prisma.$queryRaw`SELECT 1`;

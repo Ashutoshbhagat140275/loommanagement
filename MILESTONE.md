@@ -95,12 +95,31 @@ Web:
 
 ## Phase 4 — Stock and materials
 
-- [ ] Materials with unit (kg / bundle) and price per unit
-- [ ] Bulk purchase entry with supplier
-- [ ] Give material at saree start, add more later, return leftovers
-- [ ] "Bought by weaver" material — cash now or into his ledger
-- [ ] Low-stock warning and stock report
-- [ ] Finished sarees list: in stock / sold, with per-saree cost story
+API:
+
+- [x] Materials with a unit each (kg / bundle) and an optional low-stock level
+- [x] Quantities in thousandths of a unit, like money in paise: no decimal drift
+- [x] Purchases with bill total and supplier; opening stock may have no price
+- [x] Cost basis: the average price paid across priced purchases
+- [x] Give material when a saree starts, in the same transaction: short on
+      anything and the saree does not start at all
+- [x] Give more later; return leftovers at what the saree was charged, so
+      returning everything costs the saree nothing
+- [x] Can't give more than is in stock, or return more than was given; material
+      row locked while it is checked
+- [x] Weaver bought material himself: adds to the saree's cost, never touches
+      stock, paid back as cash now or into his passbook's old balance
+- [x] Stock report: on hand, average price, value, low flag, last purchase
+- [x] Finished sarees land in stock; mark sold or back in stock; each carries
+      material cost, and labour cost for the owner only
+- [x] Sarees finished before this phase were back-filled as in stock
+- [x] 14 tests, using the owner's planning example (Rs 11,400 of material)
+
+Web:
+
+- [ ] Stock page: materials, levels, buy
+- [ ] Material on the start-saree form, and give / return / weaver-bought on a saree
+- [ ] Finished sarees list with cost story and mark sold
 
 ## Phase 5 — Passbook and payments
 

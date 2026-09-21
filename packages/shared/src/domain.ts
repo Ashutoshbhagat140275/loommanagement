@@ -33,6 +33,18 @@ export type LoomStatus = (typeof LOOM_STATUSES)[number];
 export const MATERIAL_UNITS = ["KG", "BUNDLE"] as const;
 export type MaterialUnit = (typeof MATERIAL_UNITS)[number];
 
+export const STOCK_MOVEMENT_KINDS = [
+  "PURCHASE",
+  "GIVEN_TO_SAREE",
+  "RETURNED_FROM_SAREE",
+  "BOUGHT_BY_WEAVER",
+] as const;
+export type StockMovementKind = (typeof STOCK_MOVEMENT_KINDS)[number];
+
+/** How a weaver who bought material himself is paid back. */
+export const REIMBURSEMENT_METHODS = ["CASH_NOW", "INTO_PASSBOOK"] as const;
+export type ReimbursementMethod = (typeof REIMBURSEMENT_METHODS)[number];
+
 export const SAREE_JOB_STATUSES = ["RUNNING", "FINISHED", "HANDED_OVER"] as const;
 export type SareeJobStatus = (typeof SAREE_JOB_STATUSES)[number];
 

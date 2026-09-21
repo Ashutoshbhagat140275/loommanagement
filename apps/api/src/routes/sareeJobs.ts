@@ -4,6 +4,7 @@ import { shiftSareeJobWorkerSchema, startSareeJobSchema } from "@loom/shared";
 import { requireAuth, requireFactory, requireRole } from "../auth/plugin.js";
 import { badRequest, conflict, notFound } from "../http/errors.js";
 import { applyShift, creditSareeWage, previewShift } from "../services/ledger.js";
+import { giveMaterial } from "../services/stock.js";
 import { approvedInches, approvedInchesByJob } from "../services/sareeJobs.js";
 
 const jobSelect = {
@@ -125,6 +126,21 @@ export async function sareeJobRoutes(app: FastifyInstance) {
           );
         }
 
+        // Material handed over at the start. If there is not enough of
+        // something in stock, the saree does not start either, rather than
+        // starting with half its material recorded.
+        for (const line of input.materials) {
+          await giveMaterial(
+            tx,
+            { factoryId, userId },
+            {
+              sareeJobId: created.id,
+              materialId: line.materialId,
+              quantityMilli: line.quantityMilli,
+            },
+          );
+        }
+
         return created;
       });
 
@@ -155,7 +171,8 @@ export async function sareeJobRoutes(app: FastifyInstance) {
 
       const sareeJob = await db.sareeJob.update({
         where: { id: job.id },
-        data: { status: "FINISHED", finishedAt: new Date() },
+        // Off the loom and into the store room.
+        data: { status: "FINISHED", finishedAt: new Date(), saleStatus: "IN_STOCK" },
         select: jobSelect,
       });
 

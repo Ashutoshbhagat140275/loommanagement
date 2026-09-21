@@ -18,7 +18,8 @@ const TENANT_MODELS = new Set<string>([
   "SareeJobWorker",
   "ProductionEntry",
   "LedgerLine",
-  // phase 4: Material, StockMovement, FinishedSaree
+  "Material",
+  "StockMovement",
 ]);
 
 /** Operations whose `args.where` should carry the factory filter. */
