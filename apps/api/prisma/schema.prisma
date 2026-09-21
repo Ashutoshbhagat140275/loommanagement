@@ -49,6 +49,32 @@ enum ProductionEntryStatus {
   AWAITING_OWNER
 }
 
+/// A weaver's passbook has two sections that never mix on their own.
+enum LedgerSection {
+  /// Money for a particular saree: its wage or its inches, and what was paid
+  /// against it. One of these per saree the weaver is or was on.
+  CURRENT_WORK
+  /// Advances, and anything left over from a saree the weaver was shifted
+  /// off. One per weaver. Only moves when the owner says so.
+  OLD_BALANCE
+}
+
+enum LedgerKind {
+  WORK_EARNED
+  PAYMENT_CASH
+  /// The part of a payment made by cutting the weaver's advance. Always
+  /// written together with an ADVANCE_CUT in the same group.
+  PAYMENT_BY_ADVANCE_CUT
+  ADVANCE_GIVEN
+  ADVANCE_CUT
+  OLD_BALANCE_SETTLED
+  /// Takes back the part of a per-saree wage a shifted weaver did not weave.
+  SHIFT_ADJUSTMENT
+  /// Moves a balance from one section to the other; written in pairs.
+  CARRIED_OVER
+  MATERIAL_REIMBURSEMENT
+}
+
 /// A tenant. Every row that belongs to a factory carries factoryId, and the
 /// scoped Prisma client in src/db/tenant.ts refuses to query without it.
 model Factory {
@@ -169,7 +195,8 @@ model Worker {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  jobs SareeJobWorker[]
+  jobs        SareeJobWorker[]
+  ledgerLines LedgerLine[]
 
   @@unique([factoryId, phone])
   @@index([factoryId])
@@ -251,8 +278,9 @@ model SareeJob {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  workers SareeJobWorker[]
-  entries ProductionEntry[]
+  workers     SareeJobWorker[]
+  entries     ProductionEntry[]
+  ledgerLines LedgerLine[]
 
   @@index([factoryId, status])
   @@index([loomId])
@@ -274,6 +302,11 @@ model SareeJobWorker {
   active   Boolean   @default(true)
   joinedAt DateTime  @default(now())
   leftAt   DateTime?
+
+  /// How far the saree had got when this weaver joined. 0 for anyone there
+  /// from the start. A replacement's share of the wage covers only the inches
+  /// from here to the end, so shifting them later needs this.
+  joinedAtInches Int @default(0)
 
   /// How many inches the saree had reached when this weaver was taken off it.
   /// Phase 5 needs this to work out their share: inches / length x wage.
@@ -327,4 +360,49 @@ model ProductionEntry {
   @@unique([sareeJobId, weekStart])
   @@unique([factoryId, clientId])
   @@index([factoryId, status])
+}
+
+/// One line in a weaver's passbook. The replacement for the owner's khata.
+///
+/// Append-only: a mistake is put right with another line, never by editing or
+/// deleting one, so the history always adds up to the balance and the owner
+/// can see how it got there. No balance is stored anywhere; it is always the
+/// sum of these lines.
+///
+/// Sign: positive means the owner owes the weaver more, negative means less
+/// (or, below zero, that the weaver owes the owner).
+model LedgerLine {
+  id String @id @default(cuid())
+
+  factoryId String
+
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Restrict)
+
+  section     LedgerSection
+  kind        LedgerKind
+  amountPaise Int
+
+  /// Set on every CURRENT_WORK line, since that section is kept per saree.
+  sareeJobId String?
+  sareeJob   SareeJob? @relation(fields: [sareeJobId], references: [id], onDelete: Restrict)
+
+  /// Set on the WORK_EARNED lines an approved per-inch entry produced.
+  productionEntryId String?
+
+  /// Lines written by one action share this, such as the cash and the advance
+  /// cut of a single payment, so they can be shown and checked as one.
+  groupId String
+
+  note            String?
+  createdByUserId String
+  createdAt       DateTime @default(now())
+
+  /// An approved entry pays each weaver on it exactly once, however many
+  /// times the approval runs.
+  @@unique([productionEntryId, workerId])
+  @@index([factoryId, workerId])
+  @@index([workerId, section])
+  @@index([sareeJobId])
+  @@index([groupId])
 }

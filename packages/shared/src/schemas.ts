@@ -163,6 +163,37 @@ export const reviewProductionEntrySchema = z.object({
   inches: inchesSchema.optional(),
 });
 
+/** A money amount that must actually be something. */
+const positivePaiseSchema = z.int().min(1, "Enter an amount").max(MAX_PAISE);
+const noteSchema = z.string().trim().max(300).optional();
+
+export const giveAdvanceSchema = z.object({
+  amountPaise: positivePaiseSchema,
+  note: noteSchema,
+});
+
+/**
+ * Paying a weaver against one saree. Part of the work amount may be taken as
+ * a cut from their advance rather than cash; the cut still counts as paid.
+ */
+export const payWorkerSchema = z
+  .object({
+    sareeJobId: z.string().min(1),
+    workAmountPaise: positivePaiseSchema,
+    cutForAdvancePaise: z.int().min(0).max(MAX_PAISE).default(0),
+    note: noteSchema,
+  })
+  .refine((value) => value.cutForAdvancePaise <= value.workAmountPaise, {
+    message: "The advance cut cannot be more than the amount being paid",
+    path: ["cutForAdvancePaise"],
+  });
+
+/** The owner paying off what he owes from an old saree. */
+export const settleOldBalanceSchema = z.object({
+  amountPaise: positivePaiseSchema,
+  note: noteSchema,
+});
+
 export const shiftSareeJobWorkerSchema = z.object({
   workerId: z.string().min(1),
   /** Who takes over, if anyone does right away. */

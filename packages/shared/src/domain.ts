@@ -19,6 +19,7 @@ export const LEDGER_KINDS = [
   "ADVANCE_CUT",
   "OLD_BALANCE_SETTLED",
   "SHIFT_ADJUSTMENT",
+  "CARRIED_OVER",
   "MATERIAL_REIMBURSEMENT",
 ] as const;
 export type LedgerKind = (typeof LEDGER_KINDS)[number];

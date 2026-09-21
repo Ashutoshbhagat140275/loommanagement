@@ -8,6 +8,7 @@ import {
 
 import { requireAuth, requireFactory, requireRole } from "../auth/plugin.js";
 import { badRequest, conflict, forbidden, notFound } from "../http/errors.js";
+import { creditEntryEarnings } from "../services/ledger.js";
 import { approvedInches } from "../services/sareeJobs.js";
 
 const entrySelect = {
@@ -154,20 +155,39 @@ export async function productionEntryRoutes(app: FastifyInstance) {
         );
       }
 
-      const entry = await db.productionEntry.create({
-        data: {
-          factoryId,
-          sareeJobId: job.id,
-          weekStart,
-          inches: input.inches,
-          clientId: input.clientId ?? null,
-          ratePerInchPaise: job.ratePerInchPaise,
-          status: autoApprove ? "APPROVED" : "AWAITING_OWNER",
-          enteredByUserId: context.userId,
-          approvedAt: autoApprove ? new Date() : null,
-          approvedByUserId: autoApprove ? context.userId : null,
-        },
-        select: entrySelect,
+      const entry = await db.$transaction(async (tx) => {
+        const created = await tx.productionEntry.create({
+          data: {
+            factoryId,
+            sareeJobId: job.id,
+            weekStart,
+            inches: input.inches,
+            clientId: input.clientId ?? null,
+            ratePerInchPaise: job.ratePerInchPaise,
+            status: autoApprove ? "APPROVED" : "AWAITING_OWNER",
+            enteredByUserId: context.userId,
+            approvedAt: autoApprove ? new Date() : null,
+            approvedByUserId: autoApprove ? context.userId : null,
+          },
+          select: entrySelect,
+        });
+
+        // Approved on arrival, so it pays straight away, in the same
+        // transaction as the entry itself.
+        if (autoApprove) {
+          await creditEntryEarnings(
+            tx,
+            { factoryId, userId: context.userId },
+            {
+              id: created.id,
+              sareeJobId: job.id,
+              inches: created.inches,
+              ratePerInchPaise: created.ratePerInchPaise,
+            },
+          );
+        }
+
+        return created;
       });
 
       return reply.status(201).send({
@@ -210,7 +230,7 @@ export async function productionEntryRoutes(app: FastifyInstance) {
     "/api/production-entries/:id/approve",
     { preHandler: requireRole("OWNER") },
     async (request) => {
-      const { db } = requireFactory(request);
+      const { db, factoryId } = requireFactory(request);
       const context = requireAuth(request);
       const input = reviewProductionEntrySchema.parse(request.body ?? {});
 
@@ -223,15 +243,31 @@ export async function productionEntryRoutes(app: FastifyInstance) {
         throw conflict("ALREADY_APPROVED", "This entry is already approved");
       }
 
-      const approved = await db.productionEntry.update({
-        where: { id: entry.id },
-        data: {
-          status: "APPROVED",
-          approvedAt: new Date(),
-          approvedByUserId: context.userId,
-          ...(input.inches === undefined ? {} : { inches: input.inches }),
-        },
-        select: entrySelect,
+      const approved = await db.$transaction(async (tx) => {
+        const updated = await tx.productionEntry.update({
+          where: { id: entry.id },
+          data: {
+            status: "APPROVED",
+            approvedAt: new Date(),
+            approvedByUserId: context.userId,
+            ...(input.inches === undefined ? {} : { inches: input.inches }),
+          },
+          select: entrySelect,
+        });
+
+        // Paid on the number the owner approved, not the one first filed.
+        await creditEntryEarnings(
+          tx,
+          { factoryId, userId: context.userId },
+          {
+            id: updated.id,
+            sareeJobId: updated.sareeJob.id,
+            inches: updated.inches,
+            ratePerInchPaise: updated.ratePerInchPaise,
+          },
+        );
+
+        return updated;
       });
 
       return { entry: { ...approved, weekStart: toIsoDate(approved.weekStart) } };
@@ -246,9 +282,19 @@ export async function productionEntryRoutes(app: FastifyInstance) {
 
       const entry = await db.productionEntry.findFirst({
         where: { id: request.params.id },
-        select: { id: true },
+        select: { id: true, status: true },
       });
       if (!entry) throw notFound("No such entry");
+
+      // Once approved, an entry has paid someone. Deleting it would leave that
+      // money in their passbook with nothing behind it, so only entries still
+      // waiting for the owner can be rejected.
+      if (entry.status === "APPROVED") {
+        throw conflict(
+          "ALREADY_APPROVED",
+          "This entry is approved and has been paid into the passbook, so it cannot be removed",
+        );
+      }
 
       await db.productionEntry.delete({ where: { id: entry.id } });
       return reply.status(204).send();

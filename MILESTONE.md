@@ -104,15 +104,45 @@ Web:
 
 ## Phase 5 — Passbook and payments
 
-- [ ] Append-only ledger lines; balance is a sum, never a stored field
-- [ ] Two sections: current work, and old balance / advance
-- [ ] Work money flows in from approved production entries, split half-half
-- [ ] Give advance
-- [ ] Pay worker, with "cut for advance" — cash line and cut line saved in one transaction
-- [ ] Settle old balance
+API:
+
+- [x] Append-only ledger lines; balance is a sum, never a stored field
+- [x] Two sections: current work (kept **per saree**) and old balance / advance
+      (one per weaver). Per saree because three agreed rules require it: a new
+      saree starts clean, a finished saree's balance stays open, and a weaver
+      can be on several looms
+- [x] Per-saree wage owed from the day the saree starts, split half-half
+- [x] Per-inch money credited when an entry is approved, on the approved
+      number, split half-half; never twice for one entry
+- [x] Approved entries can no longer be deleted, since they have paid someone
+- [x] Give advance
+- [x] Pay worker, with "cut for advance" — the cut counts as paid; cash, cut and
+      advance lines saved in one transaction
+- [x] Settle old balance, capped at what is actually owed
+- [x] Shift weaver settles the passbook: unwoven wage taken back, leftover moved
+      to old balance either way, next saree starts clean. Fixed: a shared
+      saree's leaving weaver was credited the whole saree's share, not their half
+- [x] Shift preview, worked out by the same code that saves it
+- [x] Worker row locked during money actions, so two payments at once cannot
+      both cut the same advance
+- [x] Owner summary: owed for sarees, advances out, old balance owed
+- [x] A weaver can read their own passbook; only the owner sees others or pays
+- [x] 19 tests built from the owner's own examples and numbers
+
+Web:
+
 - [ ] Worker profile page with full passbook
-- [ ] Owner summary: total owed to workers, total advances out
+- [ ] Give advance, pay (with cut), settle old balance
+- [ ] Shift dialog uses the server preview
+- [ ] Owner summary on the dashboard
+- [ ] Weaver sees their own balance
 - [ ] Share passbook as PDF or image
+
+Open question for the owner:
+
+- [ ] A per-saree weaver shifted off with **nobody** replacing them: their
+      unwoven share is taken back but goes to no one. If the other weaver on
+      the loom finishes alone, should they get it?
 
 ## Phase 6 — Business side
 
