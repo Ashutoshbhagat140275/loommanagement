@@ -31,7 +31,7 @@ function BottomNav() {
   return (
     <nav
       aria-label={t("nav.home")}
-      className="sticky bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)]"
+      className="sticky bottom-0 border-t border-slate-200 bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)] print:hidden"
     >
       <ul className="mx-auto flex max-w-2xl">
         {items.map((item) => (
@@ -63,7 +63,7 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b border-slate-200 bg-white">
+      <header className="border-b border-slate-200 bg-white print:hidden">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
           <div className="min-w-0">
             <p className="truncate font-semibold">{user?.factory?.name ?? t("app.name")}</p>

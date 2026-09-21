@@ -167,17 +167,21 @@ Web:
 - [x] Shift dialog shows the server's preview
 - [x] Owner's money summary on the dashboard
 - [x] Weaver sees their own passbook, read only, folded under the entry forms
-- [ ] Share passbook as PDF or image
+- [x] Share passbook as a picture (straight to WhatsApp on a phone, a PNG
+      download on a computer) or print / save as PDF. Drawn by the browser, so
+      Hindi and Marathi come out as on screen
+- [x] Shared saree, one weaver shifted off with nobody replacing him: the weaver
+      who carries on alone gets the unwoven share (owner's answer). Shares are
+      re-based so a second shift on the same saree still pays exactly
+
+Not verified here: the phone share sheet (this browser has no navigator.share)
+and the print layout (can't open a print dialog from automation). The picture
+itself was generated and checked.
 
 Note: sarees started before this phase have no passbook history, because the
 ledger did not exist yet. Only sarees started from now on have their wage in
 the passbook.
 
-Open question for the owner:
-
-- [ ] A per-saree weaver shifted off with **nobody** replacing them: their
-      unwoven share is taken back but goes to no one. If the other weaver on
-      the loom finishes alone, should they get it?
 
 ## Phase 6 — Business side
 

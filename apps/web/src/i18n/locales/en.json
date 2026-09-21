@@ -261,6 +261,9 @@
     "open": "Passbook",
     "title": "{{name}}'s passbook",
     "mine": "My passbook",
+    "shareImage": "Share as picture",
+    "savePdf": "Print or save PDF",
+    "shareFailed": "Could not make the picture. Try again, or use Print or save PDF.",
     "total": "Altogether",
     "owner": {
       "OWNER_OWES": "You owe {{amount}}",

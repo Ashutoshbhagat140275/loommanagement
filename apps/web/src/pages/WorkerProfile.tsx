@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
+import { PassbookShare } from "@/components/PassbookShare.js";
 import { PassbookView } from "@/components/PassbookView.js";
 import { Button } from "@/components/ui/button.js";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog.js";
@@ -327,7 +328,7 @@ export function WorkerProfile() {
 
   return (
     <div className="space-y-4">
-      <div>
+      <div className="print:hidden">
         <Link to="/workers" className="text-sm text-slate-500 underline">
           {t("workers.title")}
         </Link>
@@ -340,7 +341,7 @@ export function WorkerProfile() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 print:hidden">
         <Button onClick={() => setDialog("pay")} disabled={!canPay}>
           {t("passbook.pay")}
         </Button>
@@ -351,9 +352,15 @@ export function WorkerProfile() {
           {t("passbook.settle")}
         </Button>
       </div>
-      {!canPay ? <p className="text-sm text-slate-500">{t("passbook.noSareeToPay")}</p> : null}
+      {!canPay ? (
+        <p className="text-sm text-slate-500 print:hidden">{t("passbook.noSareeToPay")}</p>
+      ) : null}
 
-      <PassbookView passbook={book} perspective="owner" />
+      <PassbookShare passbook={book} perspective="owner" />
+
+      <div className="print:hidden">
+        <PassbookView passbook={book} perspective="owner" />
+      </div>
 
       {/* Keyed so each opening starts from the latest balances. */}
       <AdvanceDialog

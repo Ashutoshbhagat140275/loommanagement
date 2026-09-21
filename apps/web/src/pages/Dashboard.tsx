@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { OutboxBanner } from "@/components/OutboxBanner.js";
+import { PassbookShare } from "@/components/PassbookShare.js";
 import { BalanceText, PassbookView } from "@/components/PassbookView.js";
 import { useMyPassbook, usePassbookSummary } from "@/lib/passbook.js";
 import { formatAmount } from "@/lib/rupees.js";
@@ -21,9 +22,11 @@ function WeaverHome() {
   if (list.length === 0) {
     return (
       <div className="space-y-4">
-        <OutboxBanner />
+        <div className="print:hidden">
+          <OutboxBanner />
+        </div>
         <MyPassbook />
-        <p className="rounded-2xl bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200">
+        <p className="rounded-2xl bg-white p-6 text-center text-slate-500 ring-1 ring-slate-200 print:hidden">
           {t("entry.noSaree")}
         </p>
       </div>
@@ -32,10 +35,15 @@ function WeaverHome() {
 
   return (
     <div className="space-y-4">
-      <OutboxBanner />
+      <div className="print:hidden">
+        <OutboxBanner />
+      </div>
       <MyPassbook />
       {list.map((job) => (
-        <section key={job.id} className="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+        <section
+          key={job.id}
+          className="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200 print:hidden"
+        >
           <div>
             <p className="font-medium">
               {job.label ?? t("looms.label", { number: job.loom.number })}
@@ -167,7 +175,8 @@ function MyPassbook() {
   if (!passbook.data) return null;
 
   return (
-    <details className="group rounded-2xl bg-white ring-1 ring-slate-200">
+    <>
+    <details className="group rounded-2xl bg-white ring-1 ring-slate-200 print:hidden">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4">
         <div className="min-w-0">
           <p className="text-sm text-slate-500">{t("passbook.mine")}</p>
@@ -185,6 +194,8 @@ function MyPassbook() {
         <PassbookView passbook={passbook.data} perspective="weaver" />
       </div>
     </details>
+    <PassbookShare passbook={passbook.data} perspective="weaver" />
+    </>
   );
 }
 
@@ -196,7 +207,7 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="text-2xl font-semibold tracking-tight print:hidden">
         {t("dashboard.greeting", { name: user.name })}
       </h1>
       {user.role === "WORKER" ? <WeaverHome /> : <OwnerHome />}

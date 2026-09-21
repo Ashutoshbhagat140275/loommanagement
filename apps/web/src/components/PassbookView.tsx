@@ -112,7 +112,7 @@ function HistoryRow({
       <div className="min-w-0 space-y-0.5">
         <p className="font-medium">{title}</p>
         {detail ? <p className="text-sm text-slate-600">{detail}</p> : null}
-        {where ? <p className="truncate text-sm text-slate-500">{where}</p> : null}
+        {where ? <p className="text-sm break-words text-slate-500">{where}</p> : null}
         {note ? <p className="text-sm text-slate-500 italic">{note}</p> : null}
         <p className="text-xs text-slate-400">
           {new Date(group.createdAt).toLocaleDateString(i18n.resolvedLanguage, {
@@ -143,9 +143,12 @@ function HistoryRow({
 export function PassbookView({
   passbook,
   perspective,
+  historyLimit,
 }: {
   passbook: Passbook;
   perspective: Perspective;
+  /** Show only the most recent actions, for a shared statement. */
+  historyLimit?: number;
 }) {
   const { t } = useTranslation();
   const sarees = new Map(passbook.currentWork.map((saree) => [saree.sareeJobId, saree]));
@@ -211,9 +214,11 @@ export function PassbookView({
           <p className="pt-2 text-sm text-slate-500">{t("passbook.noHistory")}</p>
         ) : (
           <ul className="divide-y divide-slate-100">
-            {groupLines(passbook.lines).map((group) => (
-              <HistoryRow key={group.id} group={group} sarees={sarees} />
-            ))}
+            {groupLines(passbook.lines)
+              .slice(0, historyLimit ?? Number.POSITIVE_INFINITY)
+              .map((group) => (
+                <HistoryRow key={group.id} group={group} sarees={sarees} />
+              ))}
           </ul>
         )}
       </section>
