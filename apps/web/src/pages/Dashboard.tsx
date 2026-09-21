@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { OutboxBanner } from "@/components/OutboxBanner.js";
@@ -126,6 +127,19 @@ function OwnerHome() {
   return (
     <div className="space-y-6">
       {user.role === "OWNER" || user.role === "SUPER_ADMIN" ? <MoneySummary /> : null}
+
+      <Link
+        to="/reports"
+        className="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200 transition hover:bg-slate-50"
+      >
+        <div className="min-w-0">
+          <p className="font-medium">{t("dashboard.reports")}</p>
+          <p className="text-sm text-slate-500">{t("dashboard.reportsHint")}</p>
+        </div>
+        <span aria-hidden className="text-slate-400">
+          ›
+        </span>
+      </Link>
 
       <dl className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">

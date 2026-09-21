@@ -24,7 +24,86 @@
     "looms": "Looms",
     "workers": "Workers",
     "approvals": "Approve",
-    "reports": "Reports"
+    "reports": "Reports",
+    "stock": "Stock"
+  },
+  "unit": {
+    "KG_one": "{{count}} kg",
+    "KG_other": "{{count}} kg",
+    "BUNDLE_one": "{{count}} bundle",
+    "BUNDLE_other": "{{count}} bundles"
+  },
+  "unitName": {
+    "KG": "kg",
+    "BUNDLE": "bundle"
+  },
+  "stock": {
+    "title": "Stock",
+    "materials": "Materials",
+    "finished": "Finished sarees",
+    "addMaterial": "Add material",
+    "name": "Name",
+    "unit": "Measured in",
+    "lowStockAt": "Warn when stock falls to",
+    "lowStockHint": "Optional. Leave empty for no warning.",
+    "empty": "No materials yet. Add silk, zari and anything else you hand out.",
+    "onHand": "In stock",
+    "avgPrice": "Average {{price}} a {{unit}}",
+    "value": "Worth {{amount}}",
+    "low": "Low",
+    "buy": "Buy",
+    "buyTitle": "Buy {{name}}",
+    "quantity": "Quantity ({{unit}})",
+    "pricePerUnit": "Price per {{unit}} (₹)",
+    "pricePerUnitHint": "Leave empty for stock you already had before using the app.",
+    "total": "Total",
+    "supplier": "Supplier",
+    "noPrice": "No price",
+    "errors": {
+      "NOT_ENOUGH_STOCK": "There is not that much in stock.",
+      "RETURN_MORE_THAN_GIVEN": "That is more than this saree was given.",
+      "badQuantity": "Enter a quantity, like 2 or 2.5"
+    }
+  },
+  "material": {
+    "button": "Material",
+    "title": "Material for this saree",
+    "none": "No material recorded for this saree yet.",
+    "onLoom": "On the loom",
+    "boughtByWeaver": "Bought by weaver",
+    "cost": "Material cost",
+    "costUnknown": "Not known — some of the stock had no price",
+    "action": "What happened",
+    "give": "Give from stock",
+    "return": "Return leftovers to stock",
+    "weaverBought": "Weaver bought it himself",
+    "which": "Material",
+    "paid": "What the weaver paid (₹)",
+    "whoPaid": "Which weaver",
+    "payBack": "Pay him back",
+    "CASH_NOW": "Cash now",
+    "INTO_PASSBOOK": "Add to his passbook",
+    "save": "Save",
+    "inStock": "{{amount}} in stock",
+    "returnable": "{{amount}} on this saree",
+    "noMaterials": "Add materials on the Stock page first.",
+    "startTitle": "Material given now",
+    "startHint": "Optional. Usually handed over as the saree starts.",
+    "addLine": "Add material",
+    "remove": "Remove"
+  },
+  "finished": {
+    "empty": "No finished sarees yet.",
+    "all": "All",
+    "IN_STOCK": "In stock",
+    "SOLD": "Sold",
+    "markSold": "Mark sold",
+    "markInStock": "Back in stock",
+    "materialCost": "Material",
+    "labourCost": "Wages",
+    "totalCost": "Cost to make",
+    "unknown": "not known",
+    "finishedOn": "Finished {{date}}"
   },
   "auth": {
     "signOut": "Sign out",
@@ -68,7 +147,9 @@
     "title": "Home",
     "greeting": "Hello, {{name}}",
     "factory": "Factory",
-    "yourRole": "Your role"
+    "yourRole": "Your role",
+    "reports": "Reports",
+    "reportsHint": "Inches woven by week, loom and weaver"
   },
   "role": {
     "OWNER": "Owner",

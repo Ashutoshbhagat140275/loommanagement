@@ -72,6 +72,10 @@ function useProductionMutation<TInput>(run: (input: TInput) => Promise<unknown>)
           ["my-passbook"],
           ["passbook-summary"],
           ["shift-preview"],
+          // Starting a saree can hand out material; finishing one stocks it.
+          ["materials"],
+          ["saree-materials"],
+          ["finished-sarees"],
         ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       );
     },

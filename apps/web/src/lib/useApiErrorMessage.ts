@@ -19,6 +19,10 @@ export function useApiErrorMessage() {
     if (error.code === "SETTLE_MORE_THAN_OWED") {
       return t("passbook.errors.SETTLE_MORE_THAN_OWED");
     }
+    if (error.code === "NOT_ENOUGH_STOCK") return t("stock.errors.NOT_ENOUGH_STOCK");
+    if (error.code === "RETURN_MORE_THAN_GIVEN") {
+      return t("stock.errors.RETURN_MORE_THAN_GIVEN");
+    }
     if (error.status === 401) return t("auth.errors.invalidCredentials");
 
     // Field-level problems are shown next to the field; if we got here the

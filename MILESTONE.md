@@ -2,9 +2,9 @@
 
 Progress tracker. The full design lives in [PLAN.md](PLAN.md).
 
-**Status:** Phases 0–3 and 5 complete (bar sharing a passbook as PDF, and
-verifying the service worker on a real device). Phase 4 (stock) is next.
-**Last updated:** 2026-09-20
+**Status:** Phases 0–5 complete, bar sharing a passbook as PDF and verifying
+the service worker on a real device. Phase 6 (business side, AWS) is what's left.
+**Last updated:** 2026-09-21
 
 Run `pnpm db:up` once, then `pnpm dev`. Tests: `pnpm test`.
 
@@ -117,9 +117,17 @@ API:
 
 Web:
 
-- [ ] Stock page: materials, levels, buy
-- [ ] Material on the start-saree form, and give / return / weaver-bought on a saree
-- [ ] Finished sarees list with cost story and mark sold
+- [x] Stock tab: materials with on hand, average price, value and a low flag;
+      add material; buy with price per unit and the bill total worked out live
+- [x] Material lines on the start-saree form
+- [x] Material panel on each running saree: give from stock, return leftovers,
+      weaver bought it himself (cash now or into his passbook)
+- [x] Finished sarees: in stock / sold filter, cost to make (material + wages),
+      mark sold or back in stock
+- [x] Nav kept to five tabs: Home, Looms, Stock, Workers, Approve. Reports moved
+      to a card on Home
+- [x] Fixed: a bad rupee amount on the start-saree form showed the sign-in
+      error "Those details did not match"
 
 ## Phase 5 — Passbook and payments
 

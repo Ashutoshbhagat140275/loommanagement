@@ -24,7 +24,86 @@
     "looms": "लूम",
     "workers": "कारीगर",
     "approvals": "मंज़ूरी",
-    "reports": "रिपोर्ट"
+    "reports": "रिपोर्ट",
+    "stock": "स्टॉक"
+  },
+  "unit": {
+    "KG_one": "{{count}} किलो",
+    "KG_other": "{{count}} किलो",
+    "BUNDLE_one": "{{count}} बंडल",
+    "BUNDLE_other": "{{count}} बंडल"
+  },
+  "unitName": {
+    "KG": "किलो",
+    "BUNDLE": "बंडल"
+  },
+  "stock": {
+    "title": "स्टॉक",
+    "materials": "माल",
+    "finished": "तैयार साड़ियाँ",
+    "addMaterial": "माल जोड़ें",
+    "name": "नाम",
+    "unit": "किसमें नापते हैं",
+    "lowStockAt": "जब स्टॉक इतना रह जाए तो चेतावनी दें",
+    "lowStockHint": "वैकल्पिक। चेतावनी नहीं चाहिए तो खाली छोड़ें।",
+    "empty": "अभी कोई माल नहीं है। रेशम, ज़री और जो भी आप देते हैं, जोड़ें।",
+    "onHand": "स्टॉक में",
+    "avgPrice": "औसत {{price}} प्रति {{unit}}",
+    "value": "कीमत {{amount}}",
+    "low": "कम",
+    "buy": "खरीदें",
+    "buyTitle": "{{name}} खरीदें",
+    "quantity": "मात्रा ({{unit}})",
+    "pricePerUnit": "प्रति {{unit}} दाम (₹)",
+    "pricePerUnitHint": "ऐप से पहले का जो माल पहले से है, उसके लिए खाली छोड़ें।",
+    "total": "कुल",
+    "supplier": "सप्लायर",
+    "noPrice": "दाम नहीं",
+    "errors": {
+      "NOT_ENOUGH_STOCK": "स्टॉक में इतना माल नहीं है।",
+      "RETURN_MORE_THAN_GIVEN": "यह इस साड़ी को दिए गए माल से ज़्यादा है।",
+      "badQuantity": "मात्रा डालें, जैसे 2 या 2.5"
+    }
+  },
+  "material": {
+    "button": "माल",
+    "title": "इस साड़ी का माल",
+    "none": "इस साड़ी के लिए अभी कोई माल दर्ज नहीं है।",
+    "onLoom": "लूम पर",
+    "boughtByWeaver": "कारीगर ने खरीदा",
+    "cost": "माल की लागत",
+    "costUnknown": "पता नहीं — कुछ स्टॉक का दाम दर्ज नहीं था",
+    "action": "क्या हुआ",
+    "give": "स्टॉक से दें",
+    "return": "बचा माल स्टॉक में लौटाएँ",
+    "weaverBought": "कारीगर ने खुद खरीदा",
+    "which": "माल",
+    "paid": "कारीगर ने कितना दिया (₹)",
+    "whoPaid": "कौन सा कारीगर",
+    "payBack": "पैसे कैसे लौटाएँ",
+    "CASH_NOW": "अभी नकद",
+    "INTO_PASSBOOK": "उसके खाते में जोड़ें",
+    "save": "सेव करें",
+    "inStock": "{{amount}} स्टॉक में",
+    "returnable": "{{amount}} इस साड़ी पर",
+    "noMaterials": "पहले स्टॉक पेज पर माल जोड़ें।",
+    "startTitle": "अभी दिया गया माल",
+    "startHint": "वैकल्पिक। आमतौर पर साड़ी शुरू होते समय दिया जाता है।",
+    "addLine": "माल जोड़ें",
+    "remove": "हटाएँ"
+  },
+  "finished": {
+    "empty": "अभी कोई तैयार साड़ी नहीं है।",
+    "all": "सभी",
+    "IN_STOCK": "स्टॉक में",
+    "SOLD": "बिक गई",
+    "markSold": "बिकी दर्ज करें",
+    "markInStock": "वापस स्टॉक में",
+    "materialCost": "माल",
+    "labourCost": "मजदूरी",
+    "totalCost": "बनाने की लागत",
+    "unknown": "पता नहीं",
+    "finishedOn": "{{date}} को पूरी हुई"
   },
   "auth": {
     "signOut": "साइन आउट",
@@ -68,7 +147,9 @@
     "title": "होम",
     "greeting": "नमस्ते, {{name}}",
     "factory": "कारखाना",
-    "yourRole": "आपकी भूमिका"
+    "yourRole": "आपकी भूमिका",
+    "reports": "रिपोर्ट",
+    "reportsHint": "हफ़्ते, लूम और कारीगर के हिसाब से बुने इंच"
   },
   "role": {
     "OWNER": "मालिक",

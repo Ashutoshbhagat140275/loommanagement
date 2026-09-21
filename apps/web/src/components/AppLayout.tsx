@@ -14,11 +14,13 @@ function BottomNav() {
 
   const items = [
     { to: "/", label: t("nav.home"), end: true },
+    // Five tabs at most, so each stays wide enough to hit on a phone. Reports
+    // are occasional, so they live on Home rather than here.
     ...(canSeeWorkers
       ? [
           { to: "/looms", label: t("nav.looms"), end: false },
+          { to: "/stock", label: t("nav.stock"), end: false },
           { to: "/workers", label: t("nav.workers"), end: false },
-          { to: "/reports", label: t("nav.reports"), end: false },
         ]
       : []),
     ...(user?.role === "OWNER"

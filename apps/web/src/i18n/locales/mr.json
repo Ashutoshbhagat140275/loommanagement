@@ -24,7 +24,86 @@
     "looms": "लूम",
     "workers": "कारागीर",
     "approvals": "मंजुरी",
-    "reports": "अहवाल"
+    "reports": "अहवाल",
+    "stock": "साठा"
+  },
+  "unit": {
+    "KG_one": "{{count}} किलो",
+    "KG_other": "{{count}} किलो",
+    "BUNDLE_one": "{{count}} बंडल",
+    "BUNDLE_other": "{{count}} बंडल"
+  },
+  "unitName": {
+    "KG": "किलो",
+    "BUNDLE": "बंडल"
+  },
+  "stock": {
+    "title": "साठा",
+    "materials": "माल",
+    "finished": "तयार साड्या",
+    "addMaterial": "माल जोडा",
+    "name": "नाव",
+    "unit": "कशात मोजतो",
+    "lowStockAt": "साठा इतका उरला की सूचना द्या",
+    "lowStockHint": "ऐच्छिक. सूचना नको असल्यास रिकामे ठेवा.",
+    "empty": "अजून माल नाही. रेशीम, जर आणि तुम्ही जे देता ते जोडा.",
+    "onHand": "साठ्यात",
+    "avgPrice": "सरासरी {{price}} प्रति {{unit}}",
+    "value": "किंमत {{amount}}",
+    "low": "कमी",
+    "buy": "खरेदी",
+    "buyTitle": "{{name}} खरेदी",
+    "quantity": "प्रमाण ({{unit}})",
+    "pricePerUnit": "प्रति {{unit}} दर (₹)",
+    "pricePerUnitHint": "ॲपच्या आधीपासून असलेल्या मालासाठी रिकामे ठेवा.",
+    "total": "एकूण",
+    "supplier": "पुरवठादार",
+    "noPrice": "दर नाही",
+    "errors": {
+      "NOT_ENOUGH_STOCK": "साठ्यात इतका माल नाही.",
+      "RETURN_MORE_THAN_GIVEN": "हे या साडीला दिलेल्या मालापेक्षा जास्त आहे.",
+      "badQuantity": "प्रमाण टाका, जसे 2 किंवा 2.5"
+    }
+  },
+  "material": {
+    "button": "माल",
+    "title": "या साडीचा माल",
+    "none": "या साडीसाठी अजून माल नोंदवलेला नाही.",
+    "onLoom": "लूमवर",
+    "boughtByWeaver": "कारागिराने घेतला",
+    "cost": "मालाचा खर्च",
+    "costUnknown": "माहीत नाही — काही साठ्याचा दर नोंदवलेला नव्हता",
+    "action": "काय झाले",
+    "give": "साठ्यातून द्या",
+    "return": "उरलेला माल साठ्यात परत",
+    "weaverBought": "कारागिराने स्वतः घेतला",
+    "which": "माल",
+    "paid": "कारागिराने किती दिले (₹)",
+    "whoPaid": "कोणता कारागीर",
+    "payBack": "पैसे कसे परत करायचे",
+    "CASH_NOW": "आत्ता रोख",
+    "INTO_PASSBOOK": "त्याच्या खात्यात जोडा",
+    "save": "सेव्ह करा",
+    "inStock": "{{amount}} साठ्यात",
+    "returnable": "{{amount}} या साडीवर",
+    "noMaterials": "आधी साठा पानावर माल जोडा.",
+    "startTitle": "आत्ता दिलेला माल",
+    "startHint": "ऐच्छिक. साधारणपणे साडी सुरू करताना दिला जातो.",
+    "addLine": "माल जोडा",
+    "remove": "काढा"
+  },
+  "finished": {
+    "empty": "अजून तयार साडी नाही.",
+    "all": "सर्व",
+    "IN_STOCK": "साठ्यात",
+    "SOLD": "विकली",
+    "markSold": "विकली म्हणून नोंदवा",
+    "markInStock": "परत साठ्यात",
+    "materialCost": "माल",
+    "labourCost": "मजुरी",
+    "totalCost": "बनवण्याचा खर्च",
+    "unknown": "माहीत नाही",
+    "finishedOn": "{{date}} ला पूर्ण"
   },
   "auth": {
     "signOut": "साइन आउट",
@@ -68,7 +147,9 @@
     "title": "होम",
     "greeting": "नमस्कार, {{name}}",
     "factory": "कारखाना",
-    "yourRole": "तुमची भूमिका"
+    "yourRole": "तुमची भूमिका",
+    "reports": "अहवाल",
+    "reportsHint": "आठवडा, लूम आणि कारागिरानुसार विणलेले इंच"
   },
   "role": {
     "OWNER": "मालक",

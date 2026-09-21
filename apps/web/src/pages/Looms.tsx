@@ -14,12 +14,15 @@ import {
 } from "@loom/shared";
 
 import { ProgressBar } from "@/components/ProgressBar.js";
+import { SareeMaterialPanel } from "@/components/SareeMaterialPanel.js";
 import { Button } from "@/components/ui/button.js";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog.js";
 import { Field, FormError, Input, Select } from "@/components/ui/field.js";
 import { apiFetch } from "@/lib/api.js";
 import { useShiftPreview } from "@/lib/passbook.js";
+import { parseQuantity } from "@/lib/quantity.js";
 import { formatAmount } from "@/lib/rupees.js";
+import { useMaterials } from "@/lib/stock.js";
 import {
   useCreateLoom,
   useFinishSareeJob,
@@ -114,6 +117,24 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
   const [workerIds, setWorkerIds] = useState<string[]>([]);
   const [amountError, setAmountError] = useState<string>();
 
+  const store = useMaterials();
+  const [materialLines, setMaterialLines] = useState<
+    { key: number; materialId: string; quantity: string }[]
+  >([]);
+  const [materialError, setMaterialError] = useState<string>();
+
+  const addMaterialLine = () =>
+    setMaterialLines((lines) => [
+      ...lines,
+      { key: Date.now(), materialId: store.data?.[0]?.id ?? "", quantity: "" },
+    ]);
+  const updateMaterialLine = (key: number, change: { materialId?: string; quantity?: string }) =>
+    setMaterialLines((lines) =>
+      lines.map((line) => (line.key === key ? { ...line, ...change } : line)),
+    );
+  const removeMaterialLine = (key: number) =>
+    setMaterialLines((lines) => lines.filter((line) => line.key !== key));
+
   /**
    * Picking a type fills the fields in once. They stay editable, and whatever
    * is submitted is what the saree keeps: the template is a shortcut, never a
@@ -150,10 +171,21 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
     try {
       amountPaise = fromRupees(amount.trim());
     } catch {
-      setAmountError(t("auth.errors.invalidCredentials"));
+      setAmountError(t("passbook.errors.badAmount"));
       return;
     }
     setAmountError(undefined);
+
+    const materials: { materialId: string; quantityMilli: number }[] = [];
+    for (const line of materialLines) {
+      const quantityMilli = parseQuantity(line.quantity);
+      if (!line.materialId || quantityMilli === null) {
+        setMaterialError(t("stock.errors.badQuantity"));
+        return;
+      }
+      materials.push({ materialId: line.materialId, quantityMilli });
+    }
+    setMaterialError(undefined);
 
     start.mutate(
       {
@@ -161,6 +193,7 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
         lengthInches: Number(lengthInches),
         wageType,
         workerIds,
+        materials,
         ...(sareeTypeId ? { sareeTypeId } : {}),
         ...(label.trim() ? { label: label.trim() } : {}),
         ...(wageType === "PER_SAREE"
@@ -282,6 +315,72 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
           })}
         </div>
       </fieldset>
+
+      {(store.data?.length ?? 0) > 0 ? (
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-slate-700">
+            {t("material.startTitle")}
+          </legend>
+          <p className="text-sm text-slate-500">{t("material.startHint")}</p>
+          {materialError ? (
+            <p role="alert" className="text-sm text-red-600">
+              {materialError}
+            </p>
+          ) : null}
+
+          {materialLines.map((line) => {
+            const picked = store.data?.find((item) => item.id === line.materialId);
+            return (
+              <div key={line.key} className="flex items-end gap-2">
+                <div className="min-w-0 flex-1">
+                  <Select
+                    aria-label={t("material.which")}
+                    value={line.materialId}
+                    onChange={(event) =>
+                      updateMaterialLine(line.key, { materialId: event.target.value })
+                    }
+                  >
+                    {store.data?.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="w-28 shrink-0">
+                  <Input
+                    aria-label={t("stock.quantity", {
+                      unit: picked ? t(`unitName.${picked.unit}`) : "",
+                    })}
+                    placeholder={picked ? t(`unitName.${picked.unit}`) : ""}
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="0.001"
+                    value={line.quantity}
+                    onChange={(event) =>
+                      updateMaterialLine(line.key, { quantity: event.target.value })
+                    }
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={t("material.remove")}
+                  onClick={() => removeMaterialLine(line.key)}
+                >
+                  ×
+                </Button>
+              </div>
+            );
+          })}
+
+          <Button type="button" variant="outline" size="sm" onClick={addMaterialLine}>
+            {t("material.addLine")}
+          </Button>
+        </fieldset>
+      ) : null}
 
       <div className="flex gap-3">
         <Button type="submit" disabled={start.isPending || workerIds.length === 0}>
@@ -433,6 +532,7 @@ function LoomCard({ loom, job }: { loom: Loom; job: SareeJob | undefined }) {
   const [starting, setStarting] = useState(false);
   const [confirmingFinish, setConfirmingFinish] = useState(false);
   const [shifting, setShifting] = useState(false);
+  const [showMaterial, setShowMaterial] = useState(false);
 
   const remaining = job ? job.lengthInches - job.inchesDone : 0;
 
@@ -497,12 +597,24 @@ function LoomCard({ loom, job }: { loom: Loom; job: SareeJob | undefined }) {
             >
               {t("saree.finish")}
             </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-expanded={showMaterial}
+              onClick={() => setShowMaterial((open) => !open)}
+            >
+              {t("material.button")}
+            </Button>
             {job.workers.length > 0 ? (
               <Button size="sm" variant="ghost" onClick={() => setShifting(true)}>
                 {t("shift.button")}
               </Button>
             ) : null}
           </div>
+
+          {showMaterial ? (
+            <SareeMaterialPanel sareeJobId={job.id} workers={job.workers} />
+          ) : null}
 
           <ShiftWorkerDialog
             job={job}
