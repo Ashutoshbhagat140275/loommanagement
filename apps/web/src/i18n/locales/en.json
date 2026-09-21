@@ -339,6 +339,26 @@
     "empty": "Nothing woven in these weeks.",
     "note": "Approved entries only."
   },
+  "admin": {
+    "title": "All factories",
+    "counts_one": "{{count}} factory · {{active}} active",
+    "counts_other": "{{count}} factories · {{active}} active",
+    "empty": "No factories have signed up yet.",
+    "paused": "Paused",
+    "plan": { "FREE": "Free" },
+    "running": "Running sarees",
+    "joined": "Joined {{date}}",
+    "lastActive": "last work recorded {{date}}",
+    "never": "never",
+    "pause": "Pause",
+    "resume": "Resume",
+    "pauseTitle": "Pause {{name}}?",
+    "pauseBody": "Nobody in this factory can use the app until you resume it. They can still sign in, and will see that it is paused. Nothing is deleted."
+  },
+  "paused": {
+    "title": "This factory's account is paused",
+    "body": "Nothing has been deleted. Please contact support to start using the app again."
+  },
   "outbox": {
     "waiting_one": "{{count}} entry saved on this phone, waiting to send",
     "waiting_other": "{{count}} entries saved on this phone, waiting to send",

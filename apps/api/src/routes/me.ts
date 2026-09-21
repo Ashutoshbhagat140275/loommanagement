@@ -16,7 +16,7 @@ export async function meRoutes(app: FastifyInstance) {
         email: true,
         username: true,
         role: true,
-        factory: { select: { id: true, name: true } },
+        factory: { select: { id: true, name: true, plan: true, suspendedAt: true } },
         worker: { select: { id: true, wageType: true, trusted: true } },
       },
     });

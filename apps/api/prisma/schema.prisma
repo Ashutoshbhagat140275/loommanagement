@@ -101,6 +101,12 @@ enum LedgerKind {
   MATERIAL_REIMBURSEMENT
 }
 
+/// What a factory is on. Only Free for now: the owner chose to launch without
+/// payments. Paid plans get added here when billing is switched on.
+enum FactoryPlan {
+  FREE
+}
+
 /// A tenant. Every row that belongs to a factory carries factoryId, and the
 /// scoped Prisma client in src/db/tenant.ts refuses to query without it.
 model Factory {
@@ -109,6 +115,12 @@ model Factory {
   phone     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  plan FactoryPlan @default(FREE)
+
+  /// Set by the super admin to pause a factory. Its people can still sign in
+  /// and see that it is paused, but nothing else works until it is resumed.
+  suspendedAt DateTime?
 
   users      User[]
   workers    Worker[]

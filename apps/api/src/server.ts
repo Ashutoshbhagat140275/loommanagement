@@ -5,6 +5,7 @@ import cookie from "@fastify/cookie";
 import { env, isProduction } from "./env.js";
 import { prisma } from "./db/client.js";
 import { authPlugin } from "./auth/plugin.js";
+import { adminRoutes } from "./routes/admin.js";
 import { registerErrorHandler } from "./http/errors.js";
 import { factoryRoutes } from "./routes/factories.js";
 import { loomRoutes } from "./routes/looms.js";
@@ -57,6 +58,7 @@ export async function buildServer() {
   await app.register(reportRoutes);
   await app.register(passbookRoutes);
   await app.register(stockRoutes);
+  await app.register(adminRoutes);
 
   app.get("/health", async () => {
     await prisma.$queryRaw`SELECT 1`;

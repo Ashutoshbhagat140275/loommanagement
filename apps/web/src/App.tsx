@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { Role } from "@loom/shared";
 
 import { AppLayout } from "@/components/AppLayout.js";
+import { Admin } from "@/pages/Admin.js";
 import { useSession } from "@/lib/session.js";
 import { Approvals } from "@/pages/Approvals.js";
 import { Dashboard } from "@/pages/Dashboard.js";
@@ -32,8 +33,11 @@ function RequireAuth({ roles, children }: { roles?: Role[]; children: ReactNode 
 
   if (isPending) return <FullPageMessage>{t("common.loading")}</FullPageMessage>;
   if (!user) return <Navigate to="/sign-in" replace />;
-  if (roles && user.role !== "SUPER_ADMIN" && !roles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+
+  if (roles && !roles.includes(user.role)) {
+    // The super admin has no factory, so factory screens mean nothing to him:
+    // his place is the admin page. Everyone else goes back home.
+    return <Navigate to={user.role === "SUPER_ADMIN" ? "/admin" : "/"} replace />;
   }
 
   return children;
@@ -124,6 +128,14 @@ export function App() {
             element={
               <RequireAuth roles={["OWNER"]}>
                 <WorkerProfile />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequireAuth roles={["SUPER_ADMIN"]}>
+                <Admin />
               </RequireAuth>
             }
           />

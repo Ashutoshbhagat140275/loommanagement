@@ -12,6 +12,9 @@ function BottomNav() {
   const { data: user } = useSession();
   const canSeeWorkers = user?.role === "OWNER" || user?.role === "SUPERVISOR";
 
+  // The super admin has one page and nothing else to go to.
+  if (user?.role === "SUPER_ADMIN") return null;
+
   const items = [
     { to: "/", label: t("nav.home"), end: true },
     // Five tabs at most, so each stays wide enough to hit on a phone. Reports
@@ -60,6 +63,7 @@ export function AppLayout() {
   const { data: user } = useSession();
   const signOut = useSignOut();
   useOutboxSync();
+  const paused = Boolean(user?.factory?.suspendedAt);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -86,10 +90,24 @@ export function AppLayout() {
       </header>
 
       <div className="mx-auto w-full max-w-2xl flex-1 px-4 py-6">
-        <Outlet />
+        {paused ? <Paused /> : <Outlet />}
       </div>
 
-      <BottomNav />
+      {paused ? null : <BottomNav />}
+    </div>
+  );
+}
+
+/**
+ * Shown instead of the app when the super admin has paused the factory, so
+ * its people see why nothing works rather than a screen of errors.
+ */
+function Paused() {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-2 rounded-2xl bg-amber-50 p-6 ring-1 ring-amber-200">
+      <h1 className="text-lg font-semibold text-amber-900">{t("paused.title")}</h1>
+      <p className="text-amber-900">{t("paused.body")}</p>
     </div>
   );
 }

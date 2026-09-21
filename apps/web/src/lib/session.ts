@@ -10,7 +10,13 @@ export type CurrentUser = {
   email: string | null;
   username: string | null;
   role: Role;
-  factory: { id: string; name: string } | null;
+  factory: {
+    id: string;
+    name: string;
+    plan: "FREE";
+    /** Set when the super admin has paused the factory. */
+    suspendedAt: string | null;
+  } | null;
   worker: { id: string; wageType: WageType; trusted: boolean } | null;
 };
 

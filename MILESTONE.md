@@ -185,7 +185,17 @@ the passbook.
 
 ## Phase 6 — Business side
 
-- [ ] Plans and billing for factories
-- [ ] Super admin panel
+Owner's decisions (2026-09-21): launch free, no payments yet; pricing undecided;
+has an AWS account and a domain.
+
+- [x] `plan` on every factory, only Free for now, ready for billing later
+- [ ] Billing and paid plans (deliberately not built yet)
+- [x] Super admin panel: every factory with its owner, plan, looms, weavers,
+      running sarees, and when work was last recorded. Counts only — no wages
+- [x] Pause / resume a factory. Its people can still sign in and see a plain
+      "paused" screen; every factory route answers FACTORY_SUSPENDED
+- [x] No sign-up for the super admin: `pnpm -F @loom/api create-super-admin
+      <email> "<name>"` on the server, password from SUPER_ADMIN_PASSWORD or
+      generated and shown once
 - [ ] AWS: S3 + CloudFront for web, App Runner or ECS for API, RDS for database
 - [ ] CI/CD, backups, monitoring

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx scripts/setup-test-db.ts && node --import tsx --env-file=../../.env.test --test-concurrency=1 --test \"src/**/*.test.ts\"",
     "postinstall": "prisma generate",
+    "create-super-admin": "tsx --env-file=../../.env scripts/create-super-admin.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"

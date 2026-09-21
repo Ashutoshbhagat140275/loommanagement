@@ -4,14 +4,17 @@ import type { Role } from "@loom/shared";
 
 import { auth } from "./index.js";
 import { env } from "../env.js";
+import { prisma } from "../db/client.js";
 import { forFactory, type TenantClient } from "../db/tenant.js";
-import { forbidden, unauthorized } from "../http/errors.js";
+import { HttpError, forbidden, unauthorized } from "../http/errors.js";
 
 export type AuthContext = {
   userId: string;
   role: Role;
   /** Null only for SUPER_ADMIN. */
   factoryId: string | null;
+  /** The super admin has paused this factory. */
+  factorySuspended: boolean;
 };
 
 declare module "fastify" {
@@ -91,10 +94,19 @@ export const authPlugin = fp(async function authPlugin(app: FastifyInstance) {
       factoryId?: string | null;
     };
 
+    const factoryId = user.factoryId ?? null;
+    const factory = factoryId
+      ? await prisma.factory.findUnique({
+          where: { id: factoryId },
+          select: { suspendedAt: true },
+        })
+      : null;
+
     request.auth = {
       userId: user.id,
       role: (user.role ?? "WORKER") as Role,
-      factoryId: user.factoryId ?? null,
+      factoryId,
+      factorySuspended: Boolean(factory?.suspendedAt),
     };
   });
 });
@@ -132,6 +144,11 @@ export function requireFactory(request: FastifyRequest): {
   const context = requireAuth(request);
   if (!context.factoryId) {
     throw forbidden("This account is not attached to a factory");
+  }
+  // Checked here because every factory route comes through here: a paused
+  // factory can still sign in and read /api/me, and nothing else.
+  if (context.factorySuspended) {
+    throw new HttpError(403, "FACTORY_SUSPENDED", "This factory's account is paused");
   }
   return {
     auth: context,

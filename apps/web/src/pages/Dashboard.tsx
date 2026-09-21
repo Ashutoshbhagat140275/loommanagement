@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { OutboxBanner } from "@/components/OutboxBanner.js";
@@ -204,6 +204,7 @@ export function Dashboard() {
   const { data: user } = useSession();
 
   if (!user) return null;
+  if (user.role === "SUPER_ADMIN") return <Navigate to="/admin" replace />;
 
   return (
     <div className="space-y-6">
