@@ -135,9 +135,16 @@ describe("pausing a factory", () => {
     );
 
     // ...but nothing else works, for the owner or for his weavers.
-    const looms = await app.inject({ method: "GET", url: "/api/looms", headers: as(shree) });
+    const looms = await app.inject({
+      method: "GET",
+      url: "/api/looms",
+      headers: as(shree),
+    });
     assert.equal(looms.statusCode, 403);
-    assert.equal(looms.json<{ error: { code: string } }>().error.code, "FACTORY_SUSPENDED");
+    assert.equal(
+      looms.json<{ error: { code: string } }>().error.code,
+      "FACTORY_SUSPENDED",
+    );
 
     const weaver = await signInWorker(app, "9876543210", "4321");
     const mine = await app.inject({
@@ -148,7 +155,11 @@ describe("pausing a factory", () => {
     assert.equal(mine.statusCode, 403);
 
     // Other factories are unaffected.
-    const theirs = await app.inject({ method: "GET", url: "/api/looms", headers: as(gupta) });
+    const theirs = await app.inject({
+      method: "GET",
+      url: "/api/looms",
+      headers: as(gupta),
+    });
     assert.equal(theirs.statusCode, 200);
 
     // Resuming puts it back.
@@ -158,7 +169,11 @@ describe("pausing a factory", () => {
       headers: { cookie: admin },
       payload: {},
     });
-    const again = await app.inject({ method: "GET", url: "/api/looms", headers: as(shree) });
+    const again = await app.inject({
+      method: "GET",
+      url: "/api/looms",
+      headers: as(shree),
+    });
     assert.equal(again.statusCode, 200);
   });
 });

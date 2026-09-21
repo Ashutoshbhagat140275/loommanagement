@@ -44,7 +44,8 @@ export async function stockRoutes(app: FastifyInstance) {
       where: { name: input.name },
       select: { id: true },
     });
-    if (clash) throw conflict("MATERIAL_TAKEN", "A material with this name already exists");
+    if (clash)
+      throw conflict("MATERIAL_TAKEN", "A material with this name already exists");
 
     const material = await db.material.create({
       data: {
@@ -127,7 +128,9 @@ export async function stockRoutes(app: FastifyInstance) {
           supplier: true,
           note: true,
           createdAt: true,
-          sareeJob: { select: { id: true, label: true, loom: { select: { number: true } } } },
+          sareeJob: {
+            select: { id: true, label: true, loom: { select: { number: true } } },
+          },
           worker: { select: { name: true } },
         },
         orderBy: { createdAt: "desc" },
@@ -163,7 +166,11 @@ export async function stockRoutes(app: FastifyInstance) {
       await requireSaree(db, request.params.id);
 
       await db.$transaction((tx) =>
-        giveMaterial(tx, { factoryId, userId }, { sareeJobId: request.params.id, ...input }),
+        giveMaterial(
+          tx,
+          { factoryId, userId },
+          { sareeJobId: request.params.id, ...input },
+        ),
       );
       return reply.status(201).send(await sareeMaterials(db, request.params.id));
     },
@@ -179,7 +186,11 @@ export async function stockRoutes(app: FastifyInstance) {
       await requireSaree(db, request.params.id);
 
       await db.$transaction((tx) =>
-        returnMaterial(tx, { factoryId, userId }, { sareeJobId: request.params.id, ...input }),
+        returnMaterial(
+          tx,
+          { factoryId, userId },
+          { sareeJobId: request.params.id, ...input },
+        ),
       );
       return reply.status(201).send(await sareeMaterials(db, request.params.id));
     },
@@ -269,7 +280,10 @@ export async function stockRoutes(app: FastifyInstance) {
     const labourRows = canSeeWages
       ? await db.ledgerLine.groupBy({
           by: ["sareeJobId"],
-          where: { sareeJobId: { in: ids }, kind: { in: ["WORK_EARNED", "SHIFT_ADJUSTMENT"] } },
+          where: {
+            sareeJobId: { in: ids },
+            kind: { in: ["WORK_EARNED", "SHIFT_ADJUSTMENT"] },
+          },
           _sum: { amountPaise: true },
         })
       : [];

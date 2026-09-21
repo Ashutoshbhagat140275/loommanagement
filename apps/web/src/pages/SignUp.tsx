@@ -52,7 +52,12 @@ export function SignUp() {
 
         <Field label={t("auth.signUp.factoryName")} error={fieldError("factoryName")}>
           {(props) => (
-            <Input {...props} required value={form.factoryName} onChange={set("factoryName")} />
+            <Input
+              {...props}
+              required
+              value={form.factoryName}
+              onChange={set("factoryName")}
+            />
           )}
         </Field>
 

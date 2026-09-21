@@ -128,7 +128,10 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
       ...lines,
       { key: Date.now(), materialId: store.data?.[0]?.id ?? "", quantity: "" },
     ]);
-  const updateMaterialLine = (key: number, change: { materialId?: string; quantity?: string }) =>
+  const updateMaterialLine = (
+    key: number,
+    change: { materialId?: string; quantity?: string },
+  ) =>
     setMaterialLines((lines) =>
       lines.map((line) => (line.key === key ? { ...line, ...change } : line)),
     );
@@ -504,7 +507,9 @@ function ShiftWorkerDialog({
               </p>
               <p className="font-medium">
                 {numbers.carriedPaise > 0
-                  ? t("shift.carryOwnerOwes", { amount: formatAmount(numbers.carriedPaise) })
+                  ? t("shift.carryOwnerOwes", {
+                      amount: formatAmount(numbers.carriedPaise),
+                    })
                   : numbers.carriedPaise < 0
                     ? t("shift.carryWorkerOwes", {
                         amount: formatAmount(numbers.carriedPaise),
@@ -520,7 +525,9 @@ function ShiftWorkerDialog({
                     : numbers.continuing.length > 0
                       ? t("shift.toContinuing", {
                           amount: formatAmount(numbers.unearnedPaise ?? 0),
-                          names: numbers.continuing.map((worker) => worker.name).join(", "),
+                          names: numbers.continuing
+                            .map((worker) => worker.name)
+                            .join(", "),
                         })
                       : t("shift.toNobody", {
                           amount: formatAmount(numbers.unearnedPaise ?? 0),
@@ -572,7 +579,7 @@ function LoomCard({ loom, job }: { loom: Loom; job: SareeJob | undefined }) {
       {job ? (
         <div className="mt-4 space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            {job.label ?? job.sareeType?.name ? (
+            {(job.label ?? job.sareeType?.name) ? (
               <p className="font-medium">{job.label ?? job.sareeType?.name}</p>
             ) : (
               <span />

@@ -64,12 +64,14 @@ function useSessionMutation<TInput>(run: (input: TInput) => Promise<unknown>) {
 }
 
 export const useSignUpFactory = () =>
-  useSessionMutation((input: {
-    factoryName: string;
-    ownerName: string;
-    email: string;
-    password: string;
-  }) => apiPost("/api/factories/sign-up", input));
+  useSessionMutation(
+    (input: {
+      factoryName: string;
+      ownerName: string;
+      email: string;
+      password: string;
+    }) => apiPost("/api/factories/sign-up", input),
+  );
 
 export const useSignInOwner = () =>
   useSessionMutation((input: { email: string; password: string }) =>

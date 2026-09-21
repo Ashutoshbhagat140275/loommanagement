@@ -1,7 +1,12 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { DEFAULT_SAREE_LENGTH_INCHES, formatPaise, fromRupees, paise } from "@loom/shared";
+import {
+  DEFAULT_SAREE_LENGTH_INCHES,
+  formatPaise,
+  fromRupees,
+  paise,
+} from "@loom/shared";
 
 import { Button } from "@/components/ui/button.js";
 import { Field, FormError, Input } from "@/components/ui/field.js";
@@ -155,9 +160,7 @@ export function SareeTypes() {
             >
               <div className="min-w-0">
                 <p className="truncate font-medium">{sareeType.name}</p>
-                <p className="text-sm text-slate-500">
-                  {sareeType.lengthInches} inch
-                </p>
+                <p className="text-sm text-slate-500">{sareeType.lengthInches} inch</p>
               </div>
               <p className="shrink-0 text-sm text-slate-600">
                 {sareeType.defaultWagePaise !== null

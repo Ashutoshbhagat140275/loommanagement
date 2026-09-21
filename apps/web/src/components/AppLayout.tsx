@@ -70,7 +70,9 @@ export function AppLayout() {
       <header className="border-b border-slate-200 bg-white print:hidden">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-4 py-3">
           <div className="min-w-0">
-            <p className="truncate font-semibold">{user?.factory?.name ?? t("app.name")}</p>
+            <p className="truncate font-semibold">
+              {user?.factory?.name ?? t("app.name")}
+            </p>
             <p className="truncate text-sm text-slate-500">
               {user ? t(`role.${user.role}`) : null}
             </p>

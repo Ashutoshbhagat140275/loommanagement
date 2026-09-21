@@ -122,7 +122,12 @@ export function PassbookShare({
   return (
     <>
       <div className="flex flex-wrap gap-2 print:hidden">
-        <Button variant="outline" size="sm" onClick={() => void shareImage()} disabled={working}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void shareImage()}
+          disabled={working}
+        >
           {working ? t("common.loading") : t("passbook.shareImage")}
         </Button>
         <Button variant="outline" size="sm" onClick={() => window.print()}>

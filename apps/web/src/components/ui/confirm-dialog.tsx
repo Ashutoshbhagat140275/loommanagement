@@ -60,6 +60,7 @@ export function ConfirmDialog({
   }, []);
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: the backdrop click is a mouse shortcut; keyboards already close a <dialog> with Escape.
     <dialog
       ref={dialog}
       onClick={(event) => {

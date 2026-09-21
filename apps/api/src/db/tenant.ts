@@ -39,11 +39,7 @@ const WHERE_OPERATIONS = new Set<string>([
 ]);
 
 /** Operations whose `args.data` should carry the factory id. */
-const DATA_OPERATIONS = new Set<string>([
-  "create",
-  "createMany",
-  "createManyAndReturn",
-]);
+const DATA_OPERATIONS = new Set<string>(["create", "createMany", "createManyAndReturn"]);
 
 export class TenantScopeError extends Error {}
 
@@ -76,7 +72,7 @@ export function forFactory(factoryId: string) {
     name: "tenant-scope",
     query: {
       $allModels: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // biome-ignore lint/suspicious/noExplicitAny: Prisma types these per model; this one hook serves all of them.
         async $allOperations({ model, operation, args, query }: any) {
           if (!TENANT_MODELS.has(model)) {
             return query(args);

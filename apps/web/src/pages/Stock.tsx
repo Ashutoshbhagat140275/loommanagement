@@ -56,11 +56,19 @@ function AddMaterialForm({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+    <form
+      onSubmit={submit}
+      className="space-y-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200"
+    >
       <FormError>{toMessage(create.error)}</FormError>
       <Field label={t("stock.name")}>
         {(props) => (
-          <Input {...props} required value={name} onChange={(event) => setName(event.target.value)} />
+          <Input
+            {...props}
+            required
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
         )}
       </Field>
       <Field label={t("stock.unit")}>
@@ -309,7 +317,7 @@ function FinishedSarees() {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-2" role="group">
+      <fieldset className="flex min-w-0 flex-wrap gap-2">
         {chips.map((chip) => (
           <button
             key={chip.value}
@@ -329,7 +337,7 @@ function FinishedSarees() {
               : ""}
           </button>
         ))}
-      </div>
+      </fieldset>
 
       {sarees.isPending ? (
         <p className="text-slate-500">{t("common.loading")}</p>
@@ -348,10 +356,15 @@ function FinishedSarees() {
                 : null;
 
             return (
-              <li key={saree.id} className="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+              <li
+                key={saree.id}
+                className="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200"
+              >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{name ? `${name} · ${loom}` : loom}</p>
+                    <p className="truncate font-medium">
+                      {name ? `${name} · ${loom}` : loom}
+                    </p>
                     <p className="truncate text-sm text-slate-500">
                       {saree.workers.map((worker) => worker.name).join(" · ")}
                     </p>
@@ -416,7 +429,9 @@ function FinishedSarees() {
                     })
                   }
                 >
-                  {saree.saleStatus === "SOLD" ? t("finished.markInStock") : t("finished.markSold")}
+                  {saree.saleStatus === "SOLD"
+                    ? t("finished.markInStock")
+                    : t("finished.markSold")}
                 </Button>
               </li>
             );

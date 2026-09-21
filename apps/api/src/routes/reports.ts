@@ -34,7 +34,8 @@ export async function reportRoutes(app: FastifyInstance) {
 
       const from = parseIsoDate(query.from);
       const to = parseIsoDate(query.to);
-      if (from > to) throw badRequest("BAD_RANGE", "The start date is after the end date");
+      if (from > to)
+        throw badRequest("BAD_RANGE", "The start date is after the end date");
 
       const entries = await db.productionEntry.findMany({
         where: { status: "APPROVED", weekStart: { gte: from, lte: to } },
@@ -54,8 +55,14 @@ export async function reportRoutes(app: FastifyInstance) {
       });
 
       const byWeek = new Map<string, { weekStart: string; inches: number }>();
-      const byLoom = new Map<string, { loomId: string; number: string; inches: number }>();
-      const byWorker = new Map<string, { workerId: string; name: string; inches: number }>();
+      const byLoom = new Map<
+        string,
+        { loomId: string; number: string; inches: number }
+      >();
+      const byWorker = new Map<
+        string,
+        { workerId: string; name: string; inches: number }
+      >();
       let totalInches = 0;
 
       for (const entry of entries) {
@@ -95,7 +102,9 @@ export async function reportRoutes(app: FastifyInstance) {
         from: query.from,
         to: query.to,
         totalInches,
-        byWeek: [...byWeek.values()].sort((a, b) => a.weekStart.localeCompare(b.weekStart)),
+        byWeek: [...byWeek.values()].sort((a, b) =>
+          a.weekStart.localeCompare(b.weekStart),
+        ),
         byLoom: mostFirst([...byLoom.values()]),
         byWorker: mostFirst([...byWorker.values()]),
       };

@@ -39,9 +39,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
         // Only claim a JSON body when there is one. Fastify rejects a request
         // that says application/json but carries nothing, which is every
         // DELETE we send.
-        ...(init?.body === undefined
-          ? {}
-          : { "Content-Type": "application/json" }),
+        ...(init?.body === undefined ? {} : { "Content-Type": "application/json" }),
         ...init?.headers,
       },
     });

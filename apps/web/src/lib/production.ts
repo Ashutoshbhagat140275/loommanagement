@@ -108,7 +108,8 @@ export const useLooms = () =>
 export const useSareeJobs = (status: "RUNNING" | "FINISHED" = "RUNNING") =>
   useQuery({
     queryKey: ["saree-jobs", status],
-    queryFn: () => apiFetch<{ sareeJobs: SareeJob[] }>(`/api/saree-jobs?status=${status}`),
+    queryFn: () =>
+      apiFetch<{ sareeJobs: SareeJob[] }>(`/api/saree-jobs?status=${status}`),
   });
 
 /**
@@ -123,9 +124,7 @@ export const useMySareeJobs = () =>
     retry: false,
     queryFn: async (): Promise<{ sareeJobs: MySareeJob[] }> => {
       try {
-        const result = await apiFetch<{ sareeJobs: MySareeJob[] }>(
-          "/api/my/saree-jobs",
-        );
+        const result = await apiFetch<{ sareeJobs: MySareeJob[] }>("/api/my/saree-jobs");
         writeLastKnown("my-saree-jobs", result);
         return result;
       } catch (error) {
@@ -172,11 +171,7 @@ export function useCreateSareeType() {
 /** Take a weaver off a half-done saree, optionally handing it to someone else. */
 export const useShiftWorker = () =>
   useProductionMutation(
-    (input: {
-      sareeJobId: string;
-      workerId: string;
-      replacementWorkerId?: string;
-    }) =>
+    (input: { sareeJobId: string; workerId: string; replacementWorkerId?: string }) =>
       apiPost(`/api/saree-jobs/${input.sareeJobId}/shift-worker`, {
         workerId: input.workerId,
         ...(input.replacementWorkerId

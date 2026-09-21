@@ -20,6 +20,10 @@ import { workerRoutes } from "./routes/workers.js";
 
 export async function buildServer() {
   const app = Fastify({
+    // In production the API sits behind AWS's load balancer, which is what the
+    // browser actually talks to. Trusting its forwarded headers gives the real
+    // client address and protocol instead of the balancer's own.
+    trustProxy: isProduction,
     // pino-pretty runs in a worker thread, which keeps the process alive after
     // tests finish, so tests get a plain silent logger.
     logger:

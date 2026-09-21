@@ -58,7 +58,11 @@ async function material(
     method: "POST",
     url: "/api/materials",
     headers: as(owner),
-    payload: { name, unit, ...(lowStockAtMilli === undefined ? {} : { lowStockAtMilli }) },
+    payload: {
+      name,
+      unit,
+      ...(lowStockAtMilli === undefined ? {} : { lowStockAtMilli }),
+    },
   });
   assert.equal(response.statusCode, 201, response.body);
   return response.json<{ material: { id: string } }>().material.id;
@@ -178,7 +182,9 @@ describe("buying and giving out material", () => {
   it("adds more material to a saree already on the loom", async () => {
     const { owner, loomId, workerId, silk } = await setup();
     const saree = (
-      await startWith(owner, loomId, workerId, [{ materialId: silk, quantityMilli: units(2) }])
+      await startWith(owner, loomId, workerId, [
+        { materialId: silk, quantityMilli: units(2) },
+      ])
     ).json<{ sareeJob: { id: string } }>().sareeJob.id;
 
     const more = await app.inject({
@@ -213,13 +219,18 @@ describe("buying and giving out material", () => {
       email: "owner@shree.test",
     });
     const loomId = await createLoom(app, owner, "4");
-    const worker = await createWorker(app, owner, { name: "Suresh", phone: "9876543210" });
+    const worker = await createWorker(app, owner, {
+      name: "Suresh",
+      phone: "9876543210",
+    });
     const workerId = worker.json<{ worker: { id: string } }>().worker.id;
     const silk = await material(owner, "Silk yarn", "KG");
     await buy(owner, silk, units(5));
 
     const saree = (
-      await startWith(owner, loomId, workerId, [{ materialId: silk, quantityMilli: units(1) }])
+      await startWith(owner, loomId, workerId, [
+        { materialId: silk, quantityMilli: units(1) },
+      ])
     ).json<{ sareeJob: { id: string } }>().sareeJob.id;
 
     assert.equal(await onHand(owner, silk), units(4));
@@ -231,7 +242,9 @@ describe("returning leftovers", () => {
   it("puts them back in stock at what the saree was charged, so returning everything costs nothing", async () => {
     const { owner, loomId, workerId, silk } = await setup();
     const saree = (
-      await startWith(owner, loomId, workerId, [{ materialId: silk, quantityMilli: units(2) }])
+      await startWith(owner, loomId, workerId, [
+        { materialId: silk, quantityMilli: units(2) },
+      ])
     ).json<{ sareeJob: { id: string } }>().sareeJob.id;
 
     // Silk gets dearer after it was handed out.
@@ -252,7 +265,9 @@ describe("returning leftovers", () => {
   it("will not take back more than the saree was given", async () => {
     const { owner, loomId, workerId, silk } = await setup();
     const saree = (
-      await startWith(owner, loomId, workerId, [{ materialId: silk, quantityMilli: units(2) }])
+      await startWith(owner, loomId, workerId, [
+        { materialId: silk, quantityMilli: units(2) },
+      ])
     ).json<{ sareeJob: { id: string } }>().sareeJob.id;
 
     const tooMuch = await app.inject({
@@ -356,14 +371,19 @@ describe("low stock", () => {
       email: "owner@shree.test",
     });
     const loomId = await createLoom(app, owner, "4");
-    const worker = await createWorker(app, owner, { name: "Suresh", phone: "9876543210" });
+    const worker = await createWorker(app, owner, {
+      name: "Suresh",
+      phone: "9876543210",
+    });
     const workerId = worker.json<{ worker: { id: string } }>().worker.id;
     const silk = await material(owner, "Silk yarn", "KG", units(5));
     await buy(owner, silk, units(8), rupees(36_000));
 
     assert.equal((await stock(owner)).find((row) => row.id === silk)!.isLow, false);
 
-    await startWith(owner, loomId, workerId, [{ materialId: silk, quantityMilli: units(3) }]);
+    await startWith(owner, loomId, workerId, [
+      { materialId: silk, quantityMilli: units(3) },
+    ]);
 
     assert.equal((await stock(owner)).find((row) => row.id === silk)!.isLow, true);
   });
@@ -388,7 +408,11 @@ describe("finished sarees", () => {
 
     const list = async () =>
       (
-        await app.inject({ method: "GET", url: "/api/finished-sarees", headers: as(owner) })
+        await app.inject({
+          method: "GET",
+          url: "/api/finished-sarees",
+          headers: as(owner),
+        })
       ).json<{
         sarees: {
           id: string;

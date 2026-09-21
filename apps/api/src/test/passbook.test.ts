@@ -277,12 +277,17 @@ describe("paying with a cut for advance", () => {
 
     const book = await passbookOf(owner, suresh);
     assert.equal(sareeBalance(book, saree), 0, "the month's work is fully paid");
-    assert.equal(book.oldBalancePaise, -rupees(18_000), "the advance went down by the cut");
+    assert.equal(
+      book.oldBalancePaise,
+      -rupees(18_000),
+      "the advance went down by the cut",
+    );
 
     // The cash, the cut against the work and the cut against the advance were
     // written together, as one payment.
     const group = book.lines.filter(
-      (line) => line.groupId === book.lines.find((l) => l.kind === "PAYMENT_CASH")!.groupId,
+      (line) =>
+        line.groupId === book.lines.find((l) => l.kind === "PAYMENT_CASH")!.groupId,
     );
     assert.deepEqual(group.map((line) => line.kind).sort(), [
       "ADVANCE_CUT",
@@ -531,8 +536,9 @@ describe("shifting a weaver off a half-done saree", () => {
       headers: as(owner),
     });
     assert.equal(preview.statusCode, 200);
-    const shown = preview.json<{ preview: { earnedPaise: number; carriedPaise: number } }>()
-      .preview;
+    const shown = preview.json<{
+      preview: { earnedPaise: number; carriedPaise: number };
+    }>().preview;
 
     const saved = await shift(owner, saree, { workerId: ramesh });
 

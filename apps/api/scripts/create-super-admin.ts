@@ -17,7 +17,7 @@ import { prisma } from "../src/db/client.js";
 const [email, ...nameParts] = process.argv.slice(2);
 const name = nameParts.join(" ").trim();
 
-if (!email || !email.includes("@") || !name) {
+if (!email?.includes("@") || !name) {
   console.error('Usage: create-super-admin <email> "<name>"');
   process.exit(1);
 }
@@ -25,6 +25,14 @@ if (!email || !email.includes("@") || !name) {
 const chosen = process.env["SUPER_ADMIN_PASSWORD"];
 if (chosen !== undefined && chosen.length < 12) {
   console.error("SUPER_ADMIN_PASSWORD must be at least 12 characters.");
+  process.exit(1);
+}
+
+// On a server, whatever this prints lands in the logs, which are kept. A
+// generated password printed there would be readable by anyone with log
+// access, so production insists on being given one instead.
+if (chosen === undefined && process.env["NODE_ENV"] === "production") {
+  console.error("Set SUPER_ADMIN_PASSWORD. In production a password is never printed.");
   process.exit(1);
 }
 const password = chosen ?? randomBytes(15).toString("base64url");

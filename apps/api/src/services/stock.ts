@@ -345,7 +345,8 @@ export async function stockReport(db: StockDb) {
     const sum = (kind: string) =>
       byKind.find((row) => row.materialId === material.id && row.kind === kind)?._sum
         .quantityMilli ?? 0;
-    const onHandMilli = sum("PURCHASE") + sum("RETURNED_FROM_SAREE") - sum("GIVEN_TO_SAREE");
+    const onHandMilli =
+      sum("PURCHASE") + sum("RETURNED_FROM_SAREE") - sum("GIVEN_TO_SAREE");
 
     const pool = priced.find((row) => row.materialId === material.id)?._sum;
     const poolCost = pool?.costPaise ?? 0;
@@ -368,8 +369,7 @@ export async function stockReport(db: StockDb) {
           : onHandMilli === 0
             ? paise(0)
             : null,
-      isLow:
-        material.lowStockAtMilli !== null && onHandMilli <= material.lowStockAtMilli,
+      isLow: material.lowStockAtMilli !== null && onHandMilli <= material.lowStockAtMilli,
       lastPurchaseAt:
         lastPurchases.find((row) => row.materialId === material.id)?._max.createdAt ??
         null,

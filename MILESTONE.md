@@ -2,8 +2,9 @@
 
 Progress tracker. The full design lives in [PLAN.md](PLAN.md).
 
-**Status:** Phases 0–5 complete, bar sharing a passbook as PDF and verifying
-the service worker on a real device. Phase 6 (business side, AWS) is what's left.
+**Status:** Phases 0–6 built. Ready to deploy: follow [docs/DEPLOY.md](docs/DEPLOY.md).
+Still to do on real hardware: the service worker check (after deploying, on
+HTTPS). Billing waits until pricing is decided.
 **Last updated:** 2026-09-21
 
 Run `pnpm db:up` once, then `pnpm dev`. Tests: `pnpm test`.
@@ -17,7 +18,8 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [x] pnpm workspace: `apps/web`, `apps/api`, `packages/shared`
 - [x] TypeScript strict config shared from `tsconfig.base.json`
 - [x] Prettier config
-- [ ] ESLint
+- [x] Lint with Biome (`pnpm lint`). ESLint can't run on TypeScript 7, which
+      has no JavaScript API for it to use; Prettier still formats
 - [x] `docker-compose.yml` with PostgreSQL (port 5433)
 - [x] `.env.example` and env validation with Zod
 - [x] First commit on `main`
@@ -197,5 +199,13 @@ has an AWS account and a domain.
 - [x] No sign-up for the super admin: `pnpm -F @loom/api create-super-admin
       <email> "<name>"` on the server, password from SUPER_ADMIN_PASSWORD or
       generated and shown once
-- [ ] AWS: S3 + CloudFront for web, App Runner or ECS for API, RDS for database
-- [ ] CI/CD, backups, monitoring
+- [x] API as a container: one bundled file, runs as a normal user, health
+      check. Two images: `loom-api` (531 MB) for the server and
+      `loom-api-migrate` for database updates, so the big Prisma tool stays out
+      of the server. Both tested against Postgres
+- [x] Deploy guide for AWS in [docs/DEPLOY.md](docs/DEPLOY.md): RDS, Secrets
+      Manager, ECR, ECS Fargate behind a load balancer, S3 + CloudFront, DNS,
+      release order, backups and alarms
+- [x] CI on GitHub: lint, typecheck, tests on a real Postgres, web build, both
+      images. Deploying stays manual for now
+- [ ] Actually deploy (owner, with the domain name filled in to the guide)

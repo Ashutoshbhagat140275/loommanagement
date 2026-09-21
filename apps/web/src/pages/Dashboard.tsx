@@ -115,7 +115,10 @@ function MoneySummary() {
       <h2 className="font-medium">{t("summary.title")}</h2>
       <dl className="grid gap-3 sm:grid-cols-3">
         {tiles.map((tile) => (
-          <div key={tile.label} className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+          <div
+            key={tile.label}
+            className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
+          >
             <dt className="text-sm text-slate-500">{tile.label}</dt>
             <dd className="mt-1 text-xl font-semibold tabular-nums">
               {formatAmount(tile.amount)}
@@ -176,25 +179,25 @@ function MyPassbook() {
 
   return (
     <>
-    <details className="group rounded-2xl bg-white ring-1 ring-slate-200 print:hidden">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4">
-        <div className="min-w-0">
-          <p className="text-sm text-slate-500">{t("passbook.mine")}</p>
-          <BalanceText
-            amountPaise={passbook.data.netPaise}
-            perspective="weaver"
-            className="mt-0.5 font-semibold"
-          />
+      <details className="group rounded-2xl bg-white ring-1 ring-slate-200 print:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4">
+          <div className="min-w-0">
+            <p className="text-sm text-slate-500">{t("passbook.mine")}</p>
+            <BalanceText
+              amountPaise={passbook.data.netPaise}
+              perspective="weaver"
+              className="mt-0.5 font-semibold"
+            />
+          </div>
+          <span aria-hidden className="text-slate-400 transition group-open:rotate-90">
+            ›
+          </span>
+        </summary>
+        <div className="border-t border-slate-100 p-4">
+          <PassbookView passbook={passbook.data} perspective="weaver" />
         </div>
-        <span aria-hidden className="text-slate-400 transition group-open:rotate-90">
-          ›
-        </span>
-      </summary>
-      <div className="border-t border-slate-100 p-4">
-        <PassbookView passbook={passbook.data} perspective="weaver" />
-      </div>
-    </details>
-    <PassbookShare passbook={passbook.data} perspective="weaver" />
+      </details>
+      <PassbookShare passbook={passbook.data} perspective="weaver" />
     </>
   );
 }

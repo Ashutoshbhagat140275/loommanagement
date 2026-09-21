@@ -42,7 +42,9 @@ export function SareeMaterialPanel({
   const bought = useWeaverBought(sareeJobId);
 
   // Paying a weaver back is money, which is the owner's alone.
-  const actions: Action[] = isOwner ? ["give", "return", "weaverBought"] : ["give", "return"];
+  const actions: Action[] = isOwner
+    ? ["give", "return", "weaverBought"]
+    : ["give", "return"];
 
   const [action, setAction] = useState<Action>("give");
   const [materialId, setMaterialId] = useState("");
@@ -63,7 +65,11 @@ export function SareeMaterialPanel({
       ? rows
           .filter((row) => row.returnableMilli > 0)
           .map((row) => ({ id: row.materialId, name: row.name, unit: row.unit }))
-      : store.map((material) => ({ id: material.id, name: material.name, unit: material.unit }));
+      : store.map((material) => ({
+          id: material.id,
+          name: material.name,
+          unit: material.unit,
+        }));
 
   const chosenId = choices.some((choice) => choice.id === materialId)
     ? materialId
@@ -75,13 +81,17 @@ export function SareeMaterialPanel({
     if (action === "give") {
       const material = store.find((item) => item.id === chosen.id);
       return material
-        ? t("material.inStock", { amount: formatQuantity(material.onHandMilli, material.unit, t) })
+        ? t("material.inStock", {
+            amount: formatQuantity(material.onHandMilli, material.unit, t),
+          })
         : undefined;
     }
     if (action === "return") {
       const row = rows.find((item) => item.materialId === chosen.id);
       return row
-        ? t("material.returnable", { amount: formatQuantity(row.returnableMilli, row.unit, t) })
+        ? t("material.returnable", {
+            amount: formatQuantity(row.returnableMilli, row.unit, t),
+          })
         : undefined;
     }
     return undefined;
@@ -132,11 +142,15 @@ export function SareeMaterialPanel({
         <div className="space-y-2">
           <ul className="divide-y divide-slate-100 text-sm">
             {rows.map((row) => (
-              <li key={row.materialId} className="flex items-start justify-between gap-4 py-2">
+              <li
+                key={row.materialId}
+                className="flex items-start justify-between gap-4 py-2"
+              >
                 <div className="min-w-0">
                   <p className="truncate font-medium">{row.name}</p>
                   <p className="text-slate-500">
-                    {t("material.onLoom")}: {formatQuantity(row.returnableMilli, row.unit, t)}
+                    {t("material.onLoom")}:{" "}
+                    {formatQuantity(row.returnableMilli, row.unit, t)}
                     {row.boughtByWeaverMilli > 0
                       ? ` · ${t("material.boughtByWeaver")}: ${formatQuantity(row.boughtByWeaverMilli, row.unit, t)}`
                       : ""}
@@ -165,7 +179,10 @@ export function SareeMaterialPanel({
         <form onSubmit={submit} className="space-y-3">
           <FormError>{toMessage(mutation.error)}</FormError>
 
-          <div className="flex flex-wrap gap-2" role="group" aria-label={t("material.action")}>
+          <fieldset
+            className="flex min-w-0 flex-wrap gap-2"
+            aria-label={t("material.action")}
+          >
             {actions.map((value) => (
               <button
                 key={value}
@@ -186,7 +203,7 @@ export function SareeMaterialPanel({
                 {t(`material.${value}`)}
               </button>
             ))}
-          </div>
+          </fieldset>
 
           {choices.length === 0 ? (
             <p className="text-sm text-slate-500">{t("material.none")}</p>

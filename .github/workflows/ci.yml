@@ -1,0 +1,78 @@
+# Every push and pull request: typecheck, run the tests against a real
+# Postgres, build the web app, and build the API image. Nothing is deployed.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      # Same as docker-compose.yml, so .env.test works unchanged.
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: loom
+          POSTGRES_PASSWORD: loom
+          POSTGRES_DB: loom
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U loom -d loom"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+        env:
+          # prisma generate runs on install and wants a connection string.
+          DATABASE_URL: postgresql://loom:loom@localhost:5433/loom
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm -F @loom/api test
+
+      - name: Build web
+        run: pnpm -F @loom/web build
+        env:
+          VITE_API_URL: https://api.example.com
+
+      - name: Build API bundle
+        run: pnpm -F @loom/api build
+
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f apps/api/Dockerfile -t loom-api:ci .
+      - name: Build migrate image
+        run: docker build -f apps/api/Dockerfile --target migrate -t loom-api-migrate:ci .

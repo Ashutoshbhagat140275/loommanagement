@@ -150,7 +150,11 @@ export type ShiftSettlement = {
   continuing: { id: string; name: string }[];
 };
 
-type ShareLink = { workerId: string; joinedAtInches: number; earnedBeforeJoinPaise: number };
+type ShareLink = {
+  workerId: string;
+  joinedAtInches: number;
+  earnedBeforeJoinPaise: number;
+};
 
 /**
  * What a weaver has earned on a per-saree saree so far. Their share is what
@@ -480,7 +484,8 @@ export async function payWorker(
     where: { sareeJobId: input.sareeJobId, workerId: input.workerId },
     select: { id: true },
   });
-  if (!everOnSaree) throw badRequest("NOT_ON_SAREE", "This weaver never worked on that saree");
+  if (!everOnSaree)
+    throw badRequest("NOT_ON_SAREE", "This weaver never worked on that saree");
 
   const { cashPaise, cutPaise } = splitPayment({
     workAmountPaise: paise(input.workAmountPaise),
@@ -631,7 +636,10 @@ export async function readPassbook(db: LedgerDb, workerId: string) {
   const perSaree = new Map<string, number>();
   for (const line of lines) {
     if (line.section !== "CURRENT_WORK" || !line.sareeJobId) continue;
-    perSaree.set(line.sareeJobId, (perSaree.get(line.sareeJobId) ?? 0) + line.amountPaise);
+    perSaree.set(
+      line.sareeJobId,
+      (perSaree.get(line.sareeJobId) ?? 0) + line.amountPaise,
+    );
   }
 
   const sarees = await db.sareeJob.findMany({

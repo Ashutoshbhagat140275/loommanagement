@@ -43,7 +43,10 @@ export function Admin() {
 
   const setPaused = useMutation({
     mutationFn: (input: { id: string; pause: boolean }) =>
-      apiPost(`/api/admin/factories/${input.id}/${input.pause ? "suspend" : "resume"}`, {}),
+      apiPost(
+        `/api/admin/factories/${input.id}/${input.pause ? "suspend" : "resume"}`,
+        {},
+      ),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-factories"] }),
   });
 
@@ -103,7 +106,9 @@ export function Admin() {
                       : "bg-emerald-50 text-emerald-700",
                   )}
                 >
-                  {factory.suspendedAt ? t("admin.paused") : t(`admin.plan.${factory.plan}`)}
+                  {factory.suspendedAt
+                    ? t("admin.paused")
+                    : t(`admin.plan.${factory.plan}`)}
                 </span>
               </div>
 

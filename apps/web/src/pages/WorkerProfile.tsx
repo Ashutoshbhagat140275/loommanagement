@@ -96,7 +96,11 @@ function AdvanceDialog({
         </Field>
         <Field label={`${t("passbook.note")} (${t("common.optional")})`}>
           {(props) => (
-            <Input {...props} value={note} onChange={(event) => setNote(event.target.value)} />
+            <Input
+              {...props}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
           )}
         </Field>
       </div>
@@ -232,7 +236,11 @@ function PayDialog({
 
         <Field label={`${t("passbook.note")} (${t("common.optional")})`}>
           {(props) => (
-            <Input {...props} value={note} onChange={(event) => setNote(event.target.value)} />
+            <Input
+              {...props}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
           )}
         </Field>
       </div>
@@ -294,13 +302,19 @@ function SettleDialog({
     >
       <div className="space-y-4">
         <FormError>{toMessage(settle.error)}</FormError>
-        <p className="text-sm">{t("passbook.settleHint", { amount: formatAmount(owed) })}</p>
+        <p className="text-sm">
+          {t("passbook.settleHint", { amount: formatAmount(owed) })}
+        </p>
         <Field label={t("passbook.amount")} error={amountError}>
           {(props) => <RupeeInput {...props} value={amount} onChange={setAmount} />}
         </Field>
         <Field label={`${t("passbook.note")} (${t("common.optional")})`}>
           {(props) => (
-            <Input {...props} value={note} onChange={(event) => setNote(event.target.value)} />
+            <Input
+              {...props}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+            />
           )}
         </Field>
       </div>
@@ -348,12 +362,18 @@ export function WorkerProfile() {
         <Button variant="outline" onClick={() => setDialog("advance")}>
           {t("passbook.giveAdvance")}
         </Button>
-        <Button variant="outline" onClick={() => setDialog("settle")} disabled={!canSettle}>
+        <Button
+          variant="outline"
+          onClick={() => setDialog("settle")}
+          disabled={!canSettle}
+        >
           {t("passbook.settle")}
         </Button>
       </div>
       {!canPay ? (
-        <p className="text-sm text-slate-500 print:hidden">{t("passbook.noSareeToPay")}</p>
+        <p className="text-sm text-slate-500 print:hidden">
+          {t("passbook.noSareeToPay")}
+        </p>
       ) : null}
 
       <PassbookShare passbook={book} perspective="owner" />

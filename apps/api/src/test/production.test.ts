@@ -195,7 +195,10 @@ describe("weekly production entry", () => {
       weekStart: "2026-09-14",
       inches: 20,
     });
-    assert.equal(filed.json<{ entry: { status: string } }>().entry.status, "AWAITING_OWNER");
+    assert.equal(
+      filed.json<{ entry: { status: string } }>().entry.status,
+      "AWAITING_OWNER",
+    );
 
     // Progress must not move until the owner has approved it.
     const before = await app.inject({
@@ -437,7 +440,10 @@ describe("shifting a weaver off a half-done saree", () => {
     });
 
     assert.equal(response.statusCode, 200);
-    assert.equal(response.json<{ shift: { earnedPaise: null } }>().shift.earnedPaise, null);
+    assert.equal(
+      response.json<{ shift: { earnedPaise: null } }>().shift.earnedPaise,
+      null,
+    );
   });
 });
 

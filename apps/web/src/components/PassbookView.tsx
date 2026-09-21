@@ -126,13 +126,17 @@ function HistoryRow({
         {currentWork !== 0 ? (
           <p>
             <span className="text-slate-500">{t("passbook.currentWork")} </span>
-            <span className="font-medium tabular-nums">{formatSignedPaise(currentWork)}</span>
+            <span className="font-medium tabular-nums">
+              {formatSignedPaise(currentWork)}
+            </span>
           </p>
         ) : null}
         {oldBalance !== 0 ? (
           <p>
             <span className="text-slate-500">{t("passbook.oldBalance")} </span>
-            <span className="font-medium tabular-nums">{formatSignedPaise(oldBalance)}</span>
+            <span className="font-medium tabular-nums">
+              {formatSignedPaise(oldBalance)}
+            </span>
           </p>
         ) : null}
       </div>
@@ -199,7 +203,11 @@ export function PassbookView({
       <section className="space-y-2 rounded-2xl bg-white p-5 ring-1 ring-slate-200">
         <h2 className="font-medium">{t("passbook.oldBalance")}</h2>
         <p className="text-sm text-slate-500">
-          {t(perspective === "owner" ? "passbook.oldBalanceHint" : "passbook.oldBalanceHintWeaver")}
+          {t(
+            perspective === "owner"
+              ? "passbook.oldBalanceHint"
+              : "passbook.oldBalanceHintWeaver",
+          )}
         </p>
         <BalanceText
           amountPaise={passbook.oldBalancePaise}

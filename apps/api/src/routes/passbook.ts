@@ -1,9 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import {
-  giveAdvanceSchema,
-  payWorkerSchema,
-  settleOldBalanceSchema,
-} from "@loom/shared";
+import { giveAdvanceSchema, payWorkerSchema, settleOldBalanceSchema } from "@loom/shared";
 
 import { requireAuth, requireFactory, requireRole } from "../auth/plugin.js";
 import { forbidden } from "../http/errors.js";
@@ -65,7 +61,9 @@ export async function passbookRoutes(app: FastifyInstance) {
         ),
       );
 
-      return reply.status(201).send({ passbook: await readPassbook(db, request.params.id) });
+      return reply
+        .status(201)
+        .send({ passbook: await readPassbook(db, request.params.id) });
     },
   );
 
@@ -118,7 +116,9 @@ export async function passbookRoutes(app: FastifyInstance) {
         ),
       );
 
-      return reply.status(201).send({ passbook: await readPassbook(db, request.params.id) });
+      return reply
+        .status(201)
+        .send({ passbook: await readPassbook(db, request.params.id) });
     },
   );
 

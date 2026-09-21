@@ -11,8 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-slate-900 text-white hover:bg-slate-800",
-        outline:
-          "bg-white text-slate-900 ring-1 ring-slate-300 hover:bg-slate-50",
+        outline: "bg-white text-slate-900 ring-1 ring-slate-300 hover:bg-slate-50",
         ghost: "text-slate-700 hover:bg-slate-100",
         danger: "bg-red-600 text-white hover:bg-red-700",
       },
@@ -29,8 +28,7 @@ const buttonVariants = cva(
   },
 );
 
-export type ButtonProps = ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants>;
+export type ButtonProps = ComponentProps<"button"> & VariantProps<typeof buttonVariants>;
 
 export function Button({ className, variant, size, block, ...props }: ButtonProps) {
   return (

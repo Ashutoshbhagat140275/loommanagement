@@ -72,7 +72,9 @@ export const useMyPassbook = () =>
   useQuery({
     queryKey: ["my-passbook"],
     queryFn: () =>
-      apiFetch<{ passbook: Passbook }>("/api/my/passbook").then((result) => result.passbook),
+      apiFetch<{ passbook: Passbook }>("/api/my/passbook").then(
+        (result) => result.passbook,
+      ),
   });
 
 export const usePassbookSummary = () =>
@@ -84,11 +86,7 @@ export const usePassbookSummary = () =>
       ),
   });
 
-export const useShiftPreview = (
-  sareeJobId: string,
-  workerId: string,
-  enabled: boolean,
-) =>
+export const useShiftPreview = (sareeJobId: string, workerId: string, enabled: boolean) =>
   useQuery({
     queryKey: ["shift-preview", sareeJobId, workerId],
     enabled: enabled && Boolean(workerId),

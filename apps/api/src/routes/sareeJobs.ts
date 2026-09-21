@@ -34,7 +34,8 @@ export async function sareeJobRoutes(app: FastifyInstance) {
       const status = request.query as { status?: string };
 
       const jobs = await db.sareeJob.findMany({
-        where: status.status === "FINISHED" ? { status: "FINISHED" } : { status: "RUNNING" },
+        where:
+          status.status === "FINISHED" ? { status: "FINISHED" } : { status: "RUNNING" },
         select: jobSelect,
         orderBy: { startedAt: "desc" },
       });

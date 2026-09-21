@@ -45,9 +45,7 @@ function openDatabase(): LoomDatabase | null {
 const database = openDatabase();
 
 export type SubmitResult =
-  | { kind: "sent" }
-  | { kind: "queued" }
-  | { kind: "rejected"; error: ApiError };
+  { kind: "sent" } | { kind: "queued" } | { kind: "rejected"; error: ApiError };
 
 export type NewEntry = {
   sareeJobId: string;

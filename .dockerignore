@@ -1,0 +1,15 @@
+# Keep the build context small, and keep secrets and local builds out of
+# every image.
+.git
+**/node_modules
+**/dist
+**/dev-dist
+apps/api/src/generated
+
+.env
+.env.*
+!.env.example
+
+apps/web
+*.log
+coverage
