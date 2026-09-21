@@ -52,18 +52,28 @@ export type MySareeJob = {
   entries: { weekStart: string; inches: number; status: string }[];
 };
 
-/** Everything that changes when production is recorded or approved. */
+/**
+ * Everything that changes when production is recorded or approved. That
+ * includes passbooks: starting a saree owes its wage, approving an entry pays
+ * for its inches, and shifting a weaver settles their share.
+ */
 function useProductionMutation<TInput>(run: (input: TInput) => Promise<unknown>) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: run,
     onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["saree-jobs"] }),
-        queryClient.invalidateQueries({ queryKey: ["my-saree-jobs"] }),
-        queryClient.invalidateQueries({ queryKey: ["production-entries"] }),
-        queryClient.invalidateQueries({ queryKey: ["looms"] }),
-      ]);
+      await Promise.all(
+        [
+          ["saree-jobs"],
+          ["my-saree-jobs"],
+          ["production-entries"],
+          ["looms"],
+          ["passbook"],
+          ["my-passbook"],
+          ["passbook-summary"],
+          ["shift-preview"],
+        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+      );
     },
   });
 }

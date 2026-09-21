@@ -12,6 +12,13 @@ export function useApiErrorMessage() {
 
     if (error.code === "OFFLINE") return t("auth.errors.offline");
     if (error.code === "EMAIL_TAKEN") return t("auth.errors.emailTaken");
+    // The server's own wording for these carries raw paise; say it properly.
+    if (error.code === "CUT_MORE_THAN_ADVANCE") {
+      return t("passbook.errors.CUT_MORE_THAN_ADVANCE");
+    }
+    if (error.code === "SETTLE_MORE_THAN_OWED") {
+      return t("passbook.errors.SETTLE_MORE_THAN_OWED");
+    }
     if (error.status === 401) return t("auth.errors.invalidCredentials");
 
     // Field-level problems are shown next to the field; if we got here the

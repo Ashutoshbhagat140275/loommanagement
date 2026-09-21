@@ -2,8 +2,8 @@
 
 Progress tracker. The full design lives in [PLAN.md](PLAN.md).
 
-**Status:** Phases 0–3 complete, except verifying the service worker on a real
-device. Phase 4 (stock) and Phase 5 (passbook) are next.
+**Status:** Phases 0–3 and 5 complete (bar sharing a passbook as PDF, and
+verifying the service worker on a real device). Phase 4 (stock) is next.
 **Last updated:** 2026-09-20
 
 Run `pnpm db:up` once, then `pnpm dev`. Tests: `pnpm test`.
@@ -131,12 +131,20 @@ API:
 
 Web:
 
-- [ ] Worker profile page with full passbook
-- [ ] Give advance, pay (with cut), settle old balance
-- [ ] Shift dialog uses the server preview
-- [ ] Owner summary on the dashboard
-- [ ] Weaver sees their own balance
+- [x] Worker profile page with the full passbook, reached from the workers list
+      (owner only; supervisors see no wages)
+- [x] Give advance, pay (with the cut and cash-to-hand-over worked out live),
+      settle old balance
+- [x] History shows one row per action: a payment is one row with its cash and
+      advance cut, not three lines
+- [x] Shift dialog shows the server's preview
+- [x] Owner's money summary on the dashboard
+- [x] Weaver sees their own passbook, read only, folded under the entry forms
 - [ ] Share passbook as PDF or image
+
+Note: sarees started before this phase have no passbook history, because the
+ledger did not exist yet. Only sarees started from now on have their wage in
+the passbook.
 
 Open question for the owner:
 

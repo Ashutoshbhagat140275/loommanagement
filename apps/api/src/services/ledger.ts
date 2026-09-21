@@ -463,6 +463,7 @@ export async function readPassbook(db: LedgerDb, workerId: string) {
       kind: true,
       amountPaise: true,
       sareeJobId: true,
+      productionEntryId: true,
       groupId: true,
       note: true,
       createdAt: true,

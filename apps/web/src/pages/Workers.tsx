@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { WAGE_TYPES, phoneSchema, type WageType } from "@loom/shared";
@@ -6,6 +7,7 @@ import { WAGE_TYPES, phoneSchema, type WageType } from "@loom/shared";
 import { Button } from "@/components/ui/button.js";
 import { Field, FormError, Input } from "@/components/ui/field.js";
 import { apiFetch, apiPost } from "@/lib/api.js";
+import { useSession } from "@/lib/session.js";
 import { useApiErrorMessage } from "@/lib/useApiErrorMessage.js";
 
 type Worker = {
@@ -134,6 +136,8 @@ function AddWorkerForm({ onDone }: { onDone: () => void }) {
 export function Workers() {
   const { t } = useTranslation();
   const [adding, setAdding] = useState(false);
+  const { data: user } = useSession();
+  const isOwner = user?.role === "OWNER" || user?.role === "SUPER_ADMIN";
 
   const workers = useQuery({
     queryKey: ["workers"],
@@ -161,29 +165,54 @@ export function Workers() {
         </p>
       ) : (
         <ul className="space-y-2">
-          {workers.data?.workers.map((worker) => (
-            <li
-              key={worker.id}
-              className="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-medium">{worker.name}</p>
-                <p className="truncate text-sm text-slate-500">
-                  {t(`wageType.${worker.wageType}`)}
-                  {worker.phone ? ` · ${worker.phone}` : ""}
-                </p>
-              </div>
-              <span
-                className={
-                  worker.userId
-                    ? "shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
-                    : "shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500"
-                }
-              >
-                {worker.userId ? t("workers.hasLogin") : t("workers.noLogin")}
-              </span>
-            </li>
-          ))}
+          {workers.data?.workers.map((worker) => {
+            const row = (
+              <>
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{worker.name}</p>
+                  <p className="truncate text-sm text-slate-500">
+                    {t(`wageType.${worker.wageType}`)}
+                    {worker.phone ? ` · ${worker.phone}` : ""}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span
+                    className={
+                      worker.userId
+                        ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
+                        : "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500"
+                    }
+                  >
+                    {worker.userId ? t("workers.hasLogin") : t("workers.noLogin")}
+                  </span>
+                  {isOwner ? (
+                    <span aria-hidden className="text-slate-400">
+                      ›
+                    </span>
+                  ) : null}
+                </div>
+              </>
+            );
+
+            // Only the owner sees wages, so only the owner gets the link.
+            return (
+              <li key={worker.id}>
+                {isOwner ? (
+                  <Link
+                    to={`/workers/${worker.id}`}
+                    aria-label={`${worker.name} · ${t("passbook.open")}`}
+                    className="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200 transition hover:bg-slate-50"
+                  >
+                    {row}
+                  </Link>
+                ) : (
+                  <div className="flex items-center justify-between gap-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                    {row}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

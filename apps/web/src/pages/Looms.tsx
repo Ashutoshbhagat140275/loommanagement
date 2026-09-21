@@ -9,7 +9,6 @@ import {
   formatPaise,
   fromRupees,
   paise,
-  proRate,
   type LoomPlace,
   type WageType,
 } from "@loom/shared";
@@ -19,6 +18,8 @@ import { Button } from "@/components/ui/button.js";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog.js";
 import { Field, FormError, Input, Select } from "@/components/ui/field.js";
 import { apiFetch } from "@/lib/api.js";
+import { useShiftPreview } from "@/lib/passbook.js";
+import { formatAmount } from "@/lib/rupees.js";
 import {
   useCreateLoom,
   useFinishSareeJob,
@@ -295,9 +296,9 @@ function StartSareeForm({ loom, onDone }: { loom: Loom; onDone: () => void }) {
 }
 
 /**
- * Takes a weaver off a half-done saree. The share is worked out here with the
- * same proRate the server uses, so the owner sees the number before agreeing
- * to it rather than after.
+ * Takes a weaver off a half-done saree. The numbers shown come from the
+ * server's preview, which runs the same code that saves the shift, so what the
+ * owner agrees to is exactly what lands in the passbook.
  */
 function ShiftWorkerDialog({
   job,
@@ -328,10 +329,8 @@ function ShiftWorkerDialog({
     (worker) => worker.active && !onThisSaree.has(worker.id),
   );
 
-  const share =
-    job.wageType === "PER_SAREE" && job.wagePaise !== null
-      ? proRate(paise(job.wagePaise), job.inchesDone, job.lengthInches)
-      : null;
+  const preview = useShiftPreview(job.id, leavingId, open);
+  const numbers = preview.data;
 
   return (
     <ConfirmDialog
@@ -388,15 +387,41 @@ function ShiftWorkerDialog({
           )}
         </Field>
 
-        <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          {share === null
-            ? t("shift.sharePerInch")
-            : t("shift.share", {
-                done: job.inchesDone,
-                total: job.lengthInches,
-                amount: formatPaise(share),
-              })}
-        </p>
+        <div className="space-y-2 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          {!numbers ? (
+            <p>{preview.isError ? toMessage(preview.error) : t("common.loading")}</p>
+          ) : (
+            <>
+              <p>
+                {numbers.earnedPaise === null
+                  ? t("shift.sharePerInch", { paid: formatAmount(numbers.paidPaise) })
+                  : t("shift.share", {
+                      done: numbers.inchesDone,
+                      total: numbers.lengthInches,
+                      share: formatAmount(numbers.sharePaise ?? 0),
+                      earned: formatAmount(numbers.earnedPaise),
+                      paid: formatAmount(numbers.paidPaise),
+                    })}
+              </p>
+              <p className="font-medium">
+                {numbers.carriedPaise > 0
+                  ? t("shift.carryOwnerOwes", { amount: formatAmount(numbers.carriedPaise) })
+                  : numbers.carriedPaise < 0
+                    ? t("shift.carryWorkerOwes", {
+                        amount: formatAmount(numbers.carriedPaise),
+                      })
+                    : t("shift.carryNone")}
+              </p>
+              {replacementId && (numbers.unearnedPaise ?? 0) > 0 ? (
+                <p>
+                  {t("shift.toReplacement", {
+                    amount: formatAmount(numbers.unearnedPaise ?? 0),
+                  })}
+                </p>
+              ) : null}
+            </>
+          )}
+        </div>
       </div>
     </ConfirmDialog>
   );

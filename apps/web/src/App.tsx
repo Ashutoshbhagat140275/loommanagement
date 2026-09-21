@@ -12,6 +12,7 @@ import { Reports } from "@/pages/Reports.js";
 import { SareeTypes } from "@/pages/SareeTypes.js";
 import { SignIn } from "@/pages/SignIn.js";
 import { SignUp } from "@/pages/SignUp.js";
+import { WorkerProfile } from "@/pages/WorkerProfile.js";
 import { Workers } from "@/pages/Workers.js";
 import { WorkerSignIn } from "@/pages/WorkerSignIn.js";
 
@@ -106,6 +107,14 @@ export function App() {
             element={
               <RequireAuth roles={["OWNER", "SUPERVISOR"]}>
                 <Workers />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/workers/:id"
+            element={
+              <RequireAuth roles={["OWNER"]}>
+                <WorkerProfile />
               </RequireAuth>
             }
           />
